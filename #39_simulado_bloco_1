@@ -1,0 +1,148 @@
+Gabarito Simulado 2018.2
+/* NOME COMPLETO: Tio Patinhas
+Matricula: YYYY
+Turma: 33X
+Prof: LALA
+*/
+#include <stdio.h>
+#include <stdlib.h> // para abs() e aloc dinamica
+#include <string.h> // para copia de strings
+struct desempenho
+{
+ int numeroCertas; /* numero de questoes certas */
+ int tempo; /* tempo total de termino, em minutos */
+};
+typedef struct desempenho Desempenho;
+struct identificacao
+{
+ int inscricao; /* numero de inscricao do participante */
+ char nome[31];
+ int idade;
+};
+typedef struct identificacao Identificacao;
+struct participante
+{
+ Identificacao identif;
+ Desempenho desemp; /* desempenho do participante */
+};
+typedef struct participante Participante;
+/* funcao resposta da questao 1 */
+void exibePalavraOriginal(char * s, char * a)
+{
+ if (*s == '\0')
+ printf("%s\n", a);
+ else
+ {
+ if (*s == '*')
+ {
+printf("%c", *a);
+a++;
+ }
+ else
+printf("%c", *s);
+ exibePalavraOriginal(s + 1, a);
+ }
+}
+/* funcao resposta da questao 2 */
+int comparaDesempenhos(Desempenho * x, Desempenho * y)
+{
+ int q1 = x->numeroCertas;
+ int q2 = y->numeroCertas;
+ int t1 = x->tempo;
+ int t2 = y->tempo;
+ int q = q1 - q2; // Uma solucao alternativa seria usar um ninho
+ int t = t2 - t1; // de ifs (i.e. varios ifs dentro de outros)
+ if (q != 0)
+ return q / abs(q);
+ else
+ if (t != 0)
+return t / abs(t);
+ else
+return 0;
+}
+/* funcao resposta da questao 3 */
+Identificacao ** obtemIdentificacoesDeOtimoDesempenho(Participante * v, int n, Desempenho d, int
+* nSup)
+{
+ int i, j;
+ *nSup = 0;
+ Identificacao ** u;
+ for (i = 0; i < n; i++)
+ if (comparaDesempenhos(&v[i].desemp, &d) == 1)
+(*nSup)++;
+ if (*nSup == 0) return NULL;
+ u = (Identificacao **)malloc(*nSup * sizeof(Identificacao *));
+ if (u == NULL) return NULL;
+ for (i = 0, j = 0; i<n && j < *nSup; i++)
+ if (comparaDesempenhos(&v[i].desemp, &d) == 1)
+u[j++] = &v[i].identif;
+ return u;
+}
+void printId(Identificacao ** v, int n)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ printf("{%d,%s,%d}\n", v[i]->inscricao, v[i]->nome, v[i]->idade);
+}
+int main(void)
+{
+ Participante vPart[6] = { { { 1015,"Maria Clara",10 },{ 3,60 } },{ { 2019,"Jose Alves",9 },{
+4,50 } },{ { 1212,"Ana Maria S",10 },{ 2,30 } },{ { 1113,"Bia Malta",10 },{ 5,70 } },{ {
+5545,"Tere Carioca",9 },{ 3,30 } },{ { 2221,"Cadu Poti",9 },{ 3,70 } } };
+ Desempenho d = { 3,45 };
+ Identificacao vIdent[] = { { 2019,"Jose Alves",9 },{ 1113,"Bia Malta",10 },{ 5545,"Tere
+Carioca",9 } };
+ /* Declare aqui outras variaveis necessarias */
+ // Minhas declaracoes para Q1
+ char * s[] = { "CL*R*B" , "TR*T*R" , "V" , "" , "*B" };
+ char * a[] = { "AAOIA" , "AO" , "AIA" , "OI" , "OI" };
+ int i;
+ int n = sizeof(s) / sizeof(s[0]);
+ // Minhas declaracoes para Q2
+ Desempenho c1 = { 5,15 };
+ Desempenho c2 = { 8,60 };
+ Desempenho c3 = { 5,20 };
+ Desempenho c4 = { 5,15 };
+ // Minhas declaracoes para Q3
+ Desempenho d2 = { 10, 45 };
+ Identificacao ** w;
+ int nSup;
+ /* ----------TESTES DAS FUNCOES FEITAS POR VOCE -----------*/
+ printf("\n ---- Teste da 1 ----- \n");
+ for (i = 0; i<n; i++)
+ exibePalavraOriginal(s[i], a[i]);
+ printf("\n ---- Teste da 2 ----- \n");
+ printf("%d\n", comparaDesempenhos(&c1, &c2)); // -1
+ printf("%d\n", comparaDesempenhos(&c2, &c1)); // 1
+ printf("%d\n", comparaDesempenhos(&c1, &c3)); // 1
+ printf("%d\n", comparaDesempenhos(&c3, &c1)); // -1
+ printf("%d\n", comparaDesempenhos(&c1, &c4)); // 0
+ printf("\n ---- Teste da 3 ----- \n");
+ printf("Ex 1:\n");
+ w = obtemIdentificacoesDeOtimoDesempenho(vPart, 6, d, &nSup);
+ if (w == NULL && nSup == 0)
+ printf("Nenhum participante com desempenho otimo.\n");
+ else
+ if (w == NULL && nSup != 0)
+printf("Nao foi possivel alocar espaco.\n");
+ if (w != NULL)
+ {
+ printId(w, nSup);
+ printf("Participantes com desempenho superior: %d\n", nSup);
+ free(w);
+ }
+ printf("Ex 2:\n");
+ w = obtemIdentificacoesDeOtimoDesempenho(vPart, 6, d2, &nSup);
+ if (w == NULL && nSup == 0)
+ printf("Nenhum participante com desempenho otimo.\n");
+ else
+ if (w == NULL && nSup != 0)
+printf("Nao foi possivel alocar espaco.\n");
+ if (w != NULL)
+ {
+ printId(w, nSup);
+ printf("Participantes com desempenho superior: %d\n", nSup);
+ free(w);
+ }
+ return 0;
+}
