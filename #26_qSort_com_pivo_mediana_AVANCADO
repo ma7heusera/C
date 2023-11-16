@@ -1,0 +1,211 @@
+Escreva a função qsortFloatMedian que usa a mediana de 3 elementos do vetor (o primeiro, o último e o do meio)
+como pivô: void qsortFloatMedian(int n, float * v, int crit). Para tanto, escreva a função auxiliar median: que
+recebe o vetor, o seu primeiro índice, o seu último índice e o critério de ordenação (1 para crescente e -1 para
+decrescente) e retorna o valor da mediana: float median(float * v, int first, int last, int crit)
+Para calcular a mediana de 3 números, você primeiro coloca os números em ordem de acordo com o critério (e.g. o
+menor como o primeiro e o maior como último) e a mediana é o valor do meio (e.g. {8, 4, 7} → {4, 7, 8} e mediana =
+7). Porém, ao invés de apenas calcular e retornar o valor da mediana, a função median inicialmente troca os números
+das 3 posições do vetor (primeira, última e meio) para ficarem em ordem (crescente ou decrescente, conforme o critério
+corrente) e depois faz uma troca final entre a primeira posiçào e a do meio. O valor que ficar na primeira posição será
+o pivô. Use a função swap desenvolvida em exercícios anteriores. Um exemplo com estes passos é o seguinte:
+ 0 1 2 3 4 5
+{8, 9, 4, 5, 2, 7} vetor original com first=0, mid=2, last=5 e v[first]=8, v[mid]=4, v[last]=7
+{4, 9, 7, 5, 2, 8} vetor com as trocas, onde v[first]=4, v[mid]=7, v[last]=8
+{7, 9, 4, 5, 2, 8} o novo pivot é a mediana (e com os outros 2 elementos na ordem adequada para partição ao meio)
+… e a função median retorna o valor v[first].
+Este procedimento vai melhorar o balanceamento das partições nos vetores que são desfavoráveis ao algoritmo de
+quick sort (e.g. vetores quase ordenados e, no limite, totalmente ordenados). … seu algoritmo vai ficar muito mais
+rápido!
+Mas, cuidado!: a função qsortFloatMedian deve prever o caso do subvetor ser de tamanho menor do que 3 (neste
+caso, a função auxiliar median não deve ser chamada).
+Agora, como desafio final, você vai fazer um segundo tipo de teste, usando vetores gigantes para ordenar. Primeiro
+você gera um vetor com números sequenciais (v[i] = (float)i;). Depois você dá a opção ao usuário de pedir para
+embaralhar ou não este vetor (via teclado). Este embaralhamento (aleatório) deve ser feito por uma função void
+shuffle, que recebe o vetor e o seu tamanho.1 Primeiro teste com o vetor sequencial (que é uma situação ruim para o
+quick sort) e depois com ele embaralhado. Com a estratégia da mediana, o quick sort não vai sentir diferença entre
+estas duas situações! Deixe que o usuário defina o tamanho n do vetor via teclado. Não faça um programa que roda
+mais de uma situação (cada situação é uma execução).
+Você também pode medir o tempo de processamento usando a função clock() antes e depois da chamada da função
+que você quer medir (para isto inclua o time.h).2
+Como o vetor é gigante, imprima apenas os 10 primeiros e os 10 últimos elementos para verificar se a ordenação
+funcionou corretamente. Para tanto é interessante definir void prtNfirstArray(float * v, int n) que imprime os n
+primeiros void prtNlasttArray(float * v, int n, int r) que imprime os r últimos.
+Para medir o desempenho corretamente, faça o deployment (Release Mode) e execute (não se esqueça de colocar
+system("pause"); antes do return 0;). Veja como fazer deployment no Cantinho do Hacker. Por fim, compare o
+desempenho com um outro programa que
+você pode escrever implementando o quick
+sort dado em aula (pivô sempre o primeiro)
+no lugar do qsortFloatMedian. ... Observe
+a diferença! E faça um relatório com os
+resultados.
+ 1 Uma ideia para a shuffle é fazer a troca de v[j] por v[i] onde j = i + rand()/(RAND_MAX/(n-i)+1). Use a função swap para a troca. Não se esqueça
+de inicializar o processo aleatório com srand((unsigned int)time(NULL)); rand(); rand(); rand();. Veja o Cantinho do Hacker sobre
+geração de números aleatórios. A função time() requer time.h. Esta solucao só é efetiva se n é bem menor do que RAND_MAX (que geralmente
+é 32762). ... mas você não precisa que o embaralhamento seja perfeito! Ao final, imprima “... Shuffling Completed.” para informar o usuário.
+2 Use clock_t t0, t1; double elapsed; t0 = clock(); chame função; t1 = clock();. Depois calcule o seguinte valor double:
+elapsed = 10000 * (double)(t1 - t0)/CLOCKS_PER_SEC;. A varável double elapsed conterá o tempo decorrido em milisegundos.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <assert.h>
+int cmpFunction(float x, float y, int crit) // funcao criterio de ordenacao
+{
+ if (crit == 1)
+ return x > y;
+ if (crit == -1)
+ return x < y;
+}
+void swap(float * v, int i, int j)
+{
+ float temp = v[i];
+ v[i] = v[j];
+ v[j] = temp;
+}
+float median(float * v, int first, int last, int crit)
+{
+ int mid = (first + last) / 2;
+ if (cmpFunction(v[first], v[mid], crit))
+ swap(v, first, mid); // troca v[first] e v[mid]
+ if (cmpFunction(v[first], v[last], crit))
+ swap(v, first, last);
+ if (cmpFunction(v[mid], v[last], crit))
+ swap(v, mid, last); // a mediana fica no meio
+ swap(v, first, mid); // coloca a mediana no inicio
+ return v[first];
+}
+void qsortFloatMedian(int n, float * v, int crit) // pivot = median of 3 elements
+{
+ float x = (n >= 3) ? median(v, 0, n - 1, crit) : v[0];
+ // Se nao quiser usar o operador ternario "? :" use if:
+ // if (n >= 3)
+ // x = median(v, 0, n - 1);
+ // else
+ // x = v[0];
+ int a = 1, b = n - 1;
+ if (n <= 1) return;
+ do
+ {
+ while (a < n && !cmpFunction(v[a], x, crit))
+a++;
+ while (cmpFunction(v[b], x, crit))
+b--;
+ if (a < b)
+ {
+swap(v, a, b);
+a++;
+b--;
+ }
+ } while (a <= b);
+ v[0] = v[b];
+ v[b] = x;
+ qsortFloatMedian(b, v, crit);
+ qsortFloatMedian(n - a, &v[a], crit);
+}
+void iniciar_aleatorio(void) // use se quiser variar a cada rodada
+{
+ srand((unsigned int)time(NULL));
+ rand(); rand(); rand();
+}
+2
+/*
+Funcao que embaralha n elementos de um array em ordem aleatoria. Esta
+solucao so' e' efetiva se n e' bem menor do que RAND_MAX (que
+geralmente e' 32762).
+Use size_t n ao inves de int n ou unsigned int n porque size_t e' um
+tipo capaz de representar o tamanho de qualquer objeto em bytes.
+Desta maneira, a funcao fica geral e independente da plataforma.
+*/
+void shuffle(float * array, size_t n)
+{
+ size_t i, j;
+ // float t;
+ iniciar_aleatorio(); // a cada rodada gera diferente (pode dificultar comparacoes)
+ if (n > 1)
+ {
+ for (i = 0; i < n - 1; i++)
+ {
+j = i + rand() / (RAND_MAX / (n - i) + 1);
+swap(array, j, i); // alternativa:
+ // t = array[j];
+ // array[j] = array[i];
+ // array[i] = t;
+ }
+ }
+ printf("... Shuffling Completed.\n");
+}
+prtNfirstArray(float * v, int n)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ printf("%.0f, ", v[i]);
+ printf("\n");
+}
+prtNlasttArray(float * v, int n, int r)
+{
+ int i;
+ for (i = n - r; i < n; i++)
+ printf("%.0f, ", v[i]);
+ printf("\n");
+}
+double runSort(float * v, int n, int crit, int nPrint)
+{
+ clock_t t0, t1;
+ double elapsed;
+ t0 = clock();
+ qsortFloatMedian(n, v, crit);
+ t1 = clock();
+ elapsed = 10000 * (double)(t1 - t0) / CLOCKS_PER_SEC; // em milisegundos
+ if (nPrint)
+ {
+ printf("\n%d primeiros elementos ORDENADOS:\n", nPrint);
+ prtNfirstArray(v, nPrint);
+ printf("%d ultimos elementos ORDENADOS:\n", nPrint);
+ prtNlasttArray(v, n, nPrint);
+ }
+ return elapsed;
+}
+3
+int main(void)
+{
+ float * v;
+ int n;
+ double elapsed;
+ int mix;
+ int nPrint;
+ int crit;
+ int i;
+ char * msg;
+ printf("QUICK SORT - PIVOT 3 MEDIAN\n");
+ printf("Criterio ordenacao (1 cresc, -1 descr): ");
+ scanf("%d", &crit);
+ printf("Entre numero de elementos: ");
+ scanf("%d", &n);
+ printf("Numero de elementos a imprimir (0 nao imprime) (e.g. 10): ");
+ scanf("%d", &nPrint);
+ printf("Embaralhar (1 sim, 0 nao)?: ");
+ scanf("%d", &mix);
+ v = (float *)malloc(n * sizeof(float));
+ assert(!(v == NULL)); // assert(expressao), se expressao nao e' true entao aborta e informa
+ // inicializa array
+ for (i = 0; i < n; i++) // initialize
+ v[i] = (float)i;
+ // embaralha (shuffle)
+ if (mix)
+ shuffle(v, n); // embaralha o array
+ // imprime array
+ if (nPrint)
+ {
+ printf("\n%d primeiros elementos originais:\n", nPrint);
+ prtNfirstArray(v, nPrint); // imprime os primeiros elementos
+ printf("%d ultimos elementos originais:\n", nPrint);
+ prtNlasttArray(v, n, nPrint); // imprime os ultimos elementos
+ }
+ elapsed = runSort(v, n, crit, nPrint);
+ msg = (mix == 1) ? "shuffled" : "unshuffled";
+ printf("\nAlgoritmo com n= %d %s gastou %lf milisegundos para executar.\n\n", n, msg,
+elapsed);
+ free(v);
+ system("pause"); // para Release Mode
+ return 0;
+}
