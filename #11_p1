@@ -1,0 +1,114 @@
+stdio.h:
+int scanf (char* formato, ...);
+int printf (char* formato, ...);
+FILE* fopen (char* nome, char* modo);
+int fclose (FILE* fp);
+int fscanf (FILE* fp, char* formato, ...);
+int fprintf (FILE* fp, char* formato, ...);
+int sprintf(char* str, char* formato, ...);
+char* fgets(char* str, int size, FILE* fp);
+int sscanf(char* str, char* formato, ...);
+stdlib.h:
+void* malloc (int nbytes);
+void free (void* p);
+math.h:
+double sqrt (double x);
+double pow (double x, double exp);
+double cos (double radianos);
+double sin (double radianos);
+string.h:
+int strlen (char* s);
+int strcmp (char* s, char *t);
+char* strcpy (char* destino, char* fonte);
+char*strncpy(char*destino,char*fonte,int n);
+char* strcat (char* destino, char* fonte);
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+double pi(int n)
+{
+ if (n == 0)
+ return 4.0;
+ else
+ return (pow(-1.0, n)*4.0) / (2 * n + 1) + pi(n - 1);
+}
+int palavras(char * s)
+{
+ int n = 0;
+ while (*s++)
+ if (*s == ' ')
+n++;
+ return n+1;
+}
+char * geraIniciais(char * nome)
+{
+ char * id;
+ char * p;
+ int i;
+ int tnome = strlen(nome);
+ int tid = 2 * palavras(nome) + 1;
+ id = (char *)malloc(tid * sizeof(char));
+ p = id;
+ *id = *nome; // pega a 1a. inicial
+ *(++id) = '.'; // anda e depois coloca o ponto
+ id++; // se posiciona 'a frente
+ for (i=0;i<tnome;i++)
+ if (nome[i] == ' ')
+ {
+*id = *(nome + i + 1);
+*(++id) = '.'; // anda e depois coloca o ponto
+id++;
+ }
+ *id = '\0';
+ return p;
+}
+float * normaliza(int n, float * pts)
+{
+ int i;
+ float * norm = (float *)malloc(n * sizeof(float));
+ float maior = pts[0];
+ for (i = 0; i < n; i++)
+ if (pts[i] > maior)
+maior = pts[i];
+ for (i = 0; i < n; i++)
+ norm[i] = pts[i] / maior;
+ return norm;
+}
+int main(void)
+{
+ int n;
+ char s1[] = "Alvo Percival Wulfric Brian Dumbledore";
+ char s2[] = "John Snow";
+ char * id;
+ int npts;
+ float pts[] = { 5.5, 3.2, 10.0, 1.5 };
+ float * norm;
+ int i;
+ n = 0;
+ while (n >= 0)
+ {
+ printf("Entre numero de termos (negativo para sair): ");
+ scanf("%d", &n);
+ if (n >= 0)
+printf("pi(%d)= %f\n", n, pi(n));
+ }
+ printf("\nQ2\n");
+ printf("%s tem %d palavras\n", s1, palavras(s1));
+ printf("%s tem %d palavras\n", s2, palavras(s2));
+ printf("\nQ3\n");
+ id = geraIniciais(s1);
+ printf("%s: %s\n", s1, id);
+ free(id);
+ id = geraIniciais(s2);
+ printf("%s: %s\n", s2, id);
+ free(id);
+ npts = 4;
+ norm = normaliza(npts, pts);
+ printf("\nQ4\nvetor de pontos - original e normalizado\n");
+ for (i = 0; i < npts; i++)
+ printf("%6.2f %6.2f\n", pts[i], norm[i]);
+ free(norm);
+ return 0;
+}
