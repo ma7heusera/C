@@ -1,4 +1,4 @@
-Escreva as seguintes funções básicas de string usando aritmética de ponteiros (i.e., use a sintaxe + e não a sintaxe []
+Esscreva as seguintes funções básicas de string usando aritmética de ponteiros (i.e., use a sintaxe + e não a sintaxe []
 com índices). Você pode usar as funções auxiliares strlen e strcpy da biblioteca de string.
 1. strUpper que recebe uma cadeia de caracteres (string) s e retorna uma nova cadeia do tamanho exato
 contendo a conversão de s para letras maiúsculas, sem destruir o conteúdo de s. Por exemplo, para “puc” a
