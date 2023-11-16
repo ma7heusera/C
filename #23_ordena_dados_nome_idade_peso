@@ -1,0 +1,18 @@
+Considere que dados de hóspedes de um SPA estão organizados em um vetor de ponteiros para a estrutura
+Dados:
+typedef struct dados Dados;
+struct dados
+{
+ char nome[51];
+ int idade;
+ int peso;
+};
+Escreva um programa que ordena o vetor em ordem crescente de nomes, em ordem crescente de idade e
+ordem decrescente de peso. Use obrigatoriamente o algoritmo de ordenação rápida e uma função auxiliar
+de comparação.
+Teste com o seguinte vetor:
+ Dados w[] = {
+ {"caetano",20,60}, {"caio",40,80}, {"ana",20,50},
+ {"caio",30,70}, {"ana",20,60}, {"analucia",20,60}
+ };
+ Dados * v[] = { w, w + 1, w + 2, w + 3, w + 4, w + 5 };
