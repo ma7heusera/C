@@ -1,0 +1,199 @@
+Vetores de struct e de ponteiros para struct – centro geométrico
+Considere que o centro geométrico de n pontos é dado por (𝑥̅, 𝑦̅) onde:
+𝑥̅=
+∑ 𝑥𝑖
+𝑛
+ e 𝑦̅ =
+∑ 𝑦𝑖
+𝑛
+Seja o caso de 3 pontos que definem um triângulo isósceles:
+Escreva 4 programas (upload de 4 arquivos) para as seguintes situações:
+1. Defina estaticamente um vetor v de tipo estruturado Ponto com 3 pontos 2D e escreva uma função
+centroGeom que calcula o centro geométrico destes pontos: Ponto centroGeom(Ponto * v, int n).
+Observe que, no retorno, haverá uma cópia custosa da estrutura.
+2. Refaça o exercício anterior definindo estaticamente um vetor v de ponteiros para o tipo estruturado
+Ponto e modifique a função para retornar um ponteiro para Ponto: Ponto * centroGeom(Ponto ** v, int
+n). Note que aqui você vai ter que usar malloc dentro da centroGeom1
+. A função centroGeom retorna
+NULL se há problema de memória. Note também que, neste caso, não haverá cópia custosa no retorno
+(como no exercício anterior).
+3. Refaça o exercício 1 definindo dinamicamente o vetor v de struct. Gerencie problemas de memória
+apenas com exit(), imediatamente e sem mensagens. Lembre de liberar memória.
+4. Refaça o exercício 2 definindo dinamicamente o vetor v de ponteiros para struct e definindo pontos
+também dinamicamente. Este é um caso em que tudo é alocado dinamicamente. Gerencie problemas
+de memória apenas com exit(), imediatamente e sem mensagens (exceto para a função centroGeom
+que retorna NULL se há problema de memória). Lembre de liberar memória.
+
+PROG 1
+/* PROG 1: Centro Geometrico - Vetor estatico de struct */
+#include <stdio.h>
+typedef struct ponto Ponto;
+struct ponto
+{
+float x;
+float y;
+};
+Ponto centroGeom(Ponto * v, int n);
+int main(void)
+{
+Ponto v[3]; // vetor estatico de struct
+Ponto p;
+v[0].x = 0.0f; v[0].y = 0.0f;
+v[1].x = 10.0f; v[1].y = 0.0f;
+v[2].x = 5.0f; v[2].y = 10.0f;
+p = centroGeom(v, 3);
+printf("Centro Geometrico: (%.1f,%.1f)\n", p.x, p.y);
+return 0;
+}
+Ponto centroGeom(Ponto * v, int n)
+{
+int i;
+Ponto p = { 0.0f, 0.0f }; // declara e inicializa Ponto
+for (i = 0; i < n; i++)
+{
+p.x += v[i].x;
+p.y += v[i].y;
+}
+p.x /= n;
+p.y /= n;
+return p; // funcao vai retornar uma copia da estrutura
+}
+PROG 2
+/* PROG 2: Centro Geometrico - Vetor estatico de ponteiros para struct */
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct ponto Ponto;
+struct ponto
+{
+float x;
+float y;
+};
+Ponto * centroGeom(Ponto ** v, int n);
+int main(void)
+{
+Ponto * v[3]; // vetor estatico de ponteiros para struct
+Ponto p1, p2, p3;
+Ponto * p;
+p1.x = 0.0f; p1.y = 0.0f;
+p2.x = 10.0f; p2.y = 0.0f;
+p3.x = 5.0f; p3.y = 10.0f;
+v[0] = &p1; // ponteiro em area estatica
+v[1] = &p2;
+v[2] = &p3;
+p = centroGeom(v, 3);
+if (p == NULL) exit(1);
+printf("Centro Geometrico: (%.1f,%.1f)\n", p->x, p->y);
+free(p);
+return 0;
+}
+Ponto * centroGeom(Ponto ** v, int n)
+{
+int i;
+Ponto * p = (Ponto *)malloc(sizeof(Ponto));
+if (p == NULL) return NULL;
+p->x = p->y = 0.0f;
+for (i = 0; i < n; i++)
+{
+p->x += v[i]->x;
+p->y += v[i]->y;
+}
+p->x /= n;
+p->y /= n;
+return p; // funcao retorna um endereco (e nao a estrutura)
+}
+/* OBS: nunca retorne o ponteiro para uma variavel local, porque a variavel deixa de existir
+ quando a função acaba. Use malloc, como acima.
+*/
+PROG 3
+/* PROG 3: Centro Geometrico - Vetor DINAMICO de struct */
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct ponto Ponto;
+struct ponto
+{
+float x;
+float y;
+};
+Ponto centroGeom(Ponto * v, int n);
+int main(void)
+{
+Ponto * v = (Ponto *)malloc(3*sizeof(Ponto)); // vetor DINAMICO de struct
+Ponto p;
+if (v == NULL) exit(1);
+v[0].x = 0.0f; v[0].y = 0.0f;
+v[1].x = 10.0f; v[1].y = 0.0f;
+v[2].x = 5.0f; v[2].y = 10.0f;
+p = centroGeom(v, 3);
+printf("Centro Geometrico: (%.1f,%.1f)\n", p.x, p.y);
+free(v);
+return 0;
+}
+Ponto centroGeom(Ponto * v, int n)
+{
+int i;
+Ponto p = { 0.0f, 0.0f }; // declara e inicializa Ponto
+for (i = 0; i < n; i++)
+{
+p.x += v[i].x;
+p.y += v[i].y;
+}
+p.x /= n;
+p.y /= n;
+return p; // funcao vai retornar uma copia da estrutura
+}
+PROG 4
+/* PROG 4: Centro Geometrico - Tudo Dinamico */
+/* Vetor DINAMICO de ponteiros para struct */
+/* com struct alocada dinamicamente */
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct ponto Ponto;
+struct ponto
+{
+float x;
+float y;
+};
+Ponto * centroGeom(Ponto ** v, int n);
+int main(void)
+{
+Ponto ** v = (Ponto **)malloc(3*sizeof(Ponto *)); // vetor DINAMICO de ponteiros para struct
+Ponto * p;
+if (v == NULL) exit(1);
+// montagem do vetor elemento a elemento (que tal usar uma funcao?):
+v[0] = (Ponto *)malloc(sizeof(Ponto));
+if (v[0] == NULL) exit(1);
+v[0]->x = 0.0f;
+v[0]->y = 0.0f;
+v[1] = (Ponto *)malloc(sizeof(Ponto));
+if (v[1] == NULL) exit(1);
+v[1]->x = 10.0f;
+v[1]->y = 0.0f;
+v[2] = (Ponto *)malloc(sizeof(Ponto));
+if (v[2] == NULL) exit(1);
+v[2]->x = 5.0f;
+v[2]->y = 10.0f;
+p = centroGeom(v, 3);
+if (p == NULL) exit(1);
+printf("Centro Geometrico: (%.1f,%.1f)\n", p->x, p->y);
+free(p);
+free(v[0]);
+free(v[1]);
+free(v[2]);
+free(v);
+return 0;
+}
+Ponto * centroGeom(Ponto ** v, int n)
+{
+int i;
+Ponto * p = (Ponto *)malloc(sizeof(Ponto));
+if (p == NULL) return NULL;
+p->x = p->y = 0.0f;
+for (i = 0; i < n; i++)
+{
+p->x += v[i]->x;
+p->y += v[i]->y;
+}
+p->x /= n;
+p->y /= n;
+return p; // funcao retorna um endereco (e nao a estrutura)
+}
