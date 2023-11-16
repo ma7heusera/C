@@ -1,0 +1,122 @@
+Exercícios Extras de Pilha
+[1] Usando typedef e as funções básicas de serviço para Pilha de caracteres, escreva a função void
+insereNoFim(Pilha * p, char c) que insere o caractere c no fim da Pilha. Esta função não faz parte das
+funções básicas de serviço de Pilha e você não pode acessar diretamente as estruturas da pilha (i.e. você só
+pode usar as funções básicas).
+Dica: use uma pilha auxiliar (e lembre de liberá-la no final).
+[2] Usando a função anterior (insereNoFim), escreva a função RECURSIVA void inverte(Pilha * p) que
+inverte a Pilha p.
+[3] Usando Pilha como uma estrutura auxiliar, escreva a função int verifica(char * exp) que verifica se
+delimitadores (i.e. parênteses, cochetes e chaves) estão balanceados na expressão exp (i.e. se os
+delimitadores abrem e fecham corretamente). Por exemplo, estão corretas as expressões 2*[3+4+5*(2+3)]
+e 3+4+5*2, enquanto que estão incorretas as 2*(3+4+5*(2+3)+5 e 3+4+5*2(. Lembre de liberar a pilha
+antes de retornar.
+Dica 1: percorra a expressão e: (i) se encontrar '(', '[' ou '{', empilhe-o; (ii) se encontrar ')', ']' ou '}',
+desempilhe e verifique o elemento do topo da pilha (que deve ser o caractere correspondente) (e se não
+for, então a expressão está errada); (iii) se a expressão for completamente percorrida e a pilha não
+estiver vazia, então a expressão está errada. Em todos os outros casos, a expressão está correta.
+Dica 2: em funções que testam algo (true/false), muitas vezes é mais fácil criar uma variável que nasce
+true e se altera conforme os testes (esta variável é a que a função retorna), por exemplo: int isOk =
+1;
+Dica 3: para o passo (ii) da Dica 1, defina a função auxiliar char delimitadorEsq(char c), que retorna
+o delimitador correspondente esquerdo (e.g. se recebe ']', então retorna '[').
+[4] Refaça a questão [3] com a função RECURSIVA int verificaRec(char * exp, Pilha * p).
+Um exemplo de teste:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "pilha.h"
+void insereNoFim(Pilha * p, char c)
+{
+ Pilha * paux = pilha_cria();
+ while (!pilha_vazia(p))
+ pilha_push(paux, pilha_pop(p));
+ pilha_push(paux, c);
+ while (!pilha_vazia(paux))
+ pilha_push(p, pilha_pop(paux));
+ pilha_libera(paux);
+}
+// inverte Pilha recursiva
+void inverte(Pilha * p)
+{
+ int c;
+ if (!pilha_vazia(p))
+ {
+ c = pilha_pop(p);
+ inverte(p);
+ insereNoFim(p, c);
+ }
+}
+char delimitadorEsq(char c)
+{
+ if (c == '}') return '{';
+ if (c == ']') return '[';
+ if (c == ')') return '(';
+}
+int verifica(char * exp)
+{
+ int i;
+ int isOk = 1; // inicia com a hipotese de "esta' Ok" = TRUE
+ Pilha * p = pilha_cria(); // cria pilha auxiliar
+ for (i = 0; exp[i] != '\0'; i++)
+ {
+ if (exp[i] == '{' || exp[i] == '[' || exp[i] == '(') // se delimitador e' esquerdo
+pilha_push(p, exp[i]); // coloca na pilha
+ else
+if (exp[i] == '}' || exp[i] == ']' || exp[i] == ')') // se delimitador e' direito
+if (pilha_vazia(p) || pilha_pop(p) != delimitadorEsq(exp[i]))
+ isOk = 0; // FALSE se p e'vazia ou
+ } // quem esta' na pilha nao e' o delimitador esquerdo
+ if (!pilha_vazia(p))
+ isOk = 0;
+ pilha_libera(p);
+ return isOk;
+}
+int verificaRec(char * exp, Pilha * p)
+{
+ if (*exp == '\0')
+ return pilha_vazia(p); // i.e. if !pilha_vazia(p) return 0, otherwise return 1
+ else
+ {
+ if (*exp == '{' || *exp == '[' || *exp == '(')
+pilha_push(p, *exp);
+ else
+if (*exp == '}' || *exp == ']' || *exp == ')')
+if (pilha_vazia(p) || pilha_pop(p) != delimitadorEsq(*exp))
+ verificaRec(exp+1,p);
+ return verificaRec(exp + 1, p);
+ }
+}
+int main(void)
+{
+ Pilha * p = pilha_cria();
+ char x;
+ Pilha * q = pilha_cria();
+ char certo1[] = "2*[3+4+5*(2+3)]";
+ char certo2[] = "3+4+5*2";
+ char errado1[] = "2*(3+4+5*(2+3)+5";
+ char errado2[] = "3+4+5*2(";
+ pilha_push(p, 'c'); pilha_push(p, 'b'); pilha_push(p, 'a');
+ printf("Pilha original:\n");
+ pilha_print(p);
+ x = 'd';
+ insereNoFim(p, x);
+ printf("Nova pilha com %c no final:\n", x);
+ pilha_print(p);
+ inverte(p);
+ printf("Pilha invertida:\n");
+ pilha_print(p);
+ pilha_libera(p);
+ printf("\nVerifica parenteses:\n");
+ printf("%20s: %d (1 certo, 0 errado)\n", certo1, verifica(certo1));
+ printf("%20s: %d (1 certo, 0 errado)\n", certo2, verifica(certo2));
+ printf("%20s: %d (1 certo, 0 errado)\n", errado1, verifica(errado1));
+ printf("%20s: %d (1 certo, 0 errado)\n", errado2, verifica(errado2));
+ printf("\nVerifica parenteses Recursivamente:\n");
+ printf("%20s: %d (1 certo, 0 errado)\n", certo1, verificaRec(certo1, q));
+ printf("%20s: %d (1 certo, 0 errado)\n", certo2, verificaRec(certo2, q));
+ printf("%20s: %d (1 certo, 0 errado)\n", errado1, verificaRec(errado1, q));
+ printf("%20s: %d (1 certo, 0 errado)\n", errado2, verificaRec(errado2, q));
+ pilha_libera(q);
+ return 0;
+}
