@@ -1,0 +1,55 @@
+//Escreva a função criaVetImpar que:
+//• recebe um vetor de inteiros, o número de elementos desse vetor e o endereço de uma variável inteira
+//onde dever ser devolvida a quantidade de elementos ímpares do vetor;
+//• retorna um novo vetor de inteiros, criado com alocação dinâmica com o tamanho exato necessário,
+//contendo apenas com os valores ímpares do vetor recebido.
+//Caso não exista nenhum valor ímpar ou não seja possível alocar espaço para o novo vetor, a função retorna
+//NULL.
+//Teste para o vetor v = { 2, 5, 3, 4, 8, 1, 6 }, com uma função main que imprime o número de ímpares encontrado,
+//imprime o novo vetor e libera a memória alocada
+
+#include <stdio.h>
+#include <stdlib.h>
+int * criaVetImpar(int * v, int n, int * nimp)
+{
+ int i, j;
+ int * vImp = NULL;
+ *nimp = 0; // poderia estar no for, mas neste caso e' melhor destacar a inicializacao
+ for (i = 0; i < n; i++)
+ if (v[i]%2)
+(*nimp)++;
+ if ((*nimp) == 0)
+ return vImp;
+ vImp = (int *)malloc((*nimp) * sizeof(int));
+ if (vImp == NULL)
+ return vImp;
+ for (i = 0, j = 0; j < (*nimp); i++)
+ if (v[i] % 2)
+vImp[j++] = v[i];
+ return vImp;
+}
+int main(void)
+{
+ int v1[] = { 2, 5, 3, 4, 8, 1, 6 };
+ int v2[] = { 2, 4 , 6 };
+ int nimp, n;
+ int i;
+ int * w;
+ n = 7;
+ w = criaVetImpar(v1, n, &nimp);
+ if (w == NULL)
+ return 0;
+ printf("%d impares\n", nimp);
+ for (i = 0; i < nimp; i++)
+ printf("%d\n", w[i]);
+ free(w);
+ n = 3;
+ w = criaVetImpar(v2, n, &nimp);
+ if (w == NULL)
+ return 0;
+ printf("%d impares\n", nimp);
+ for (i = 0; i < nimp; i++)
+ printf("%d\n", w[i]);
+ free(w);
+ return 0;
+}
