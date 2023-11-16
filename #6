@@ -1,0 +1,124 @@
+Escreva as seguintes funções básicas de string usando aritmética de ponteiros (i.e., use a sintaxe + e não a sintaxe []
+com índices). Você pode usar as funções auxiliares strlen e strcpy da biblioteca de string.
+1. strUpper que recebe uma cadeia de caracteres (string) s e retorna uma nova cadeia do tamanho exato
+contendo a conversão de s para letras maiúsculas, sem destruir o conteúdo de s. Por exemplo, para “puc” a
+função retorna “PUC”. Você pode usar a função toupper (que transforma um caractere minúsculo em maiúsculo),
+que é especificada em ctype.h. Suponha que s só contém letras. A função deve retornar NULL se não houver
+memória disponível.
+2. mystrdup que duplica uma cadeia de caracteres dada e retorna uma nova cadeia do tamanho exato
+necessário. A função deve retornar NULL se não houver memória disponível. OBS: “duplicar”, aqui, significa duplicar a
+informação numa outra área de memória (isto pode ser útil, por exemplo, se a informação original vai ser alterada, apagada ou
+liberada).
+3. mystrcmp que recebe os strings s e t e retorna um número negativo, zero ou um número positivo se s é
+alfabeticamente menor que, igual a ou maior que t. Por exemplo, “rio” comparado com “puc” retorna um número
+positivo. Dica: continue a repetição enquanto os elementos de s forem iguais ao de t até chegar ao terminador; e quando encontrar um
+elemento de s diferente de t, veja quem é maior ou menor pela subtração dos caracteres.
+4. mystrcat que concatena a cadeia de caracteres t no final da cadeia s e retorna s. Suponha que s tem
+espaço suficiente de memória. Por exemplo, concatenar “escola” a “auto” resulta em “autoescola” (note que não
+é auto + escola = autoescola). Dica: vá até o final de s e então copie os caracteres de t. Lembre-se de guardar o valor original do
+endereço s em uma variável auxiliar, para poder caminhar tranquilamente com s.
+5. strShift que recebe uma cadeia de caracteres com letras do alfabeto e retorna uma nova cadeia com as
+letras substituídas por seus sucessores na tabela ASCII. Por exemplo, “Ana” retorna “Bob” e “zaZA” retorna “{b[B”.
+A função deve retornar NULL se não houver memória disponível.
+Escreva também uma função principal, valendo 2.5 pts, Na função principal, teste as seguintes situações (sempre
+lembrando de liberar memória e testar se há memória suficiente):
+• Crie as seguintes constantes de string: s = “puc”, v = “rio”, t = “-“, r = “Ana”, z = “zaZA”;
+• Converta s em maiúsculas e imprima;
+• Duplique s e referencie a nova cadeia de caracteres como w;
+• Compare s com w, s com v e v com s;
+• Para o teste da concatenação, primeiro aloque dinamicamente uma área com 100 bytes e a referencie com o
+ponteiro u. Depois copie s para esta nova área usando strcpy. A seguir, numa única linha, concatene t com u e
+com v para formar “puc-rio”. Dica: use mystrcat dentro de mystrcat.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+char * strUpper(char * s) // preserva s e retorna novo string
+{
+ char * p, *r;
+ p = (char *)malloc(strlen(s) + 1); // +1 for '\0'
+ r = p; // para guardar o p inicial
+ if (p != NULL)
+ for (; *p = *s; s++, p++) // se fizer for (;*s;s++,p++), faca *p='\0' antes do return
+*p = toupper(*s);
+ return r;
+}
+char * mystrdup(char * s)
+{
+ char * p;
+ p = (char *)malloc(strlen(s) + 1); // +1 para ‘\0’
+ if (p != NULL)
+ strcpy(p, s);
+ return p;
+}
+int mystrcmp(char * s, char * t)
+{
+ for (; *s == *t; s++, t++)
+ if (*s == '\0')
+return 0;
+ return *s - *t;
+}
+char * mystrcat(char * s, char * t) // concatena t para o final de s e retorna s
+{
+ char * w = s;
+ while (*s) // vai ate’ o fim de s
+ s++;
+ while (*s++ = *t++) // copia t
+ ;
+ return w;
+}
+char * strShift(char * s) // retorna nova string com caracteres deslocados
+{
+ char * p, *r;
+ p = (char *)malloc(strlen(s) + 1); // +1 for '\0'
+ r = p; // para guardar o p inicial
+ if (p != NULL)
+ for (; *p = *s; s++, p++) // se fizer for (;*s;s++,p++), faca *p='\0' antes do return
+*p = *s+1;
+ return r;
+}
+int main(void)
+{
+ char * s = "puc";
+ char * w;
+ char * v = "rio";
+ char * u = (char *)malloc(100);
+ char * t = "-";
+ char * r = "Ana";
+ char * z = "zaZA";
+ w = strUpper(s);
+ if (w != NULL)
+ printf("%s %s\n", s, w);
+ else
+ printf("Memoria insuficiente\n");
+ free(w);
+ w = mystrdup(s);
+ if (w != NULL)
+ {
+ printf("%s duplicada em %s\n", s, w);
+ printf("%s comparado com %s: %d\n", s, w, mystrcmp(s, w));
+ printf("%s comparado com %s: %d\n", s, v, mystrcmp(s, v));
+ printf("%s comparado com %s: %d\n", v, s, mystrcmp(v, s));
+ strcpy(u, s);
+ printf("concatena %s com %s e com %s\n", v, t, u);
+ u = mystrcat(mystrcat(u, t), v);
+ printf("String final: %s\n", u);
+ free(u);
+ }
+ else
+ printf("Memoria insuficiente\n");
+ free(w);
+ w = strShift(r);
+ if (w != NULL)
+ printf("%s shifted to %s\n", r, w);
+ else
+ printf("Memoria insuficiente\n");
+ free(w);
+ w = strShift(z);
+ if (w != NULL)
+ printf("%s shifted to %s\n", z, w);
+ else
+ printf("Memoria insuficiente\n");
+ return 0;
+}
