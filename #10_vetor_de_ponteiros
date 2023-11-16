@@ -1,0 +1,86 @@
+Considere que os alunos de uma universidade são guardados em um vetor de ponteiros para o seguinte
+tipo estruturado Aluno:
+__________________
+|_____mat_________
+|_____nome________
+|  ano |___ano____
+|  ref |_semestre_
+onde AnoRef é um tipo estruturado. Por exemplo: {110, Ada Lovelace, {2009,1}} representa a aluna Ada
+Lovelace, matriculada em 2009.1 com matrícula 110. Escreva e teste as seguintes funções:
+• criaAluno que recebe 4 argumentos, matrícula, nome, ano e semestre, e retorna um ponteiro para
+Aluno. Toda a memória deve ser alocada dinamicamente (incluindo o nome, que deve ser definido na
+estrutura como char * nome).
+• imprimeTudo que imprime todo o vetor;
+• liberaAlunos que libera todo o vetor e imprime “Todos os alunos liberados”.
+Para testar não use leitura de dados do teclado ou de arquivos. , use v[0] = criaAluno(110, "Ada
+Lovelace", 2010, 1). Exemplo de output na Fig.1.
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct anoRef
+{
+ int ano;
+ int semestre;
+};
+typedef struct anoRef AnoRef;
+struct aluno
+{
+ int mat;
+ char * nome;
+ AnoRef anoIn;
+};
+typedef struct aluno Aluno;
+Aluno * criaAluno(int mat, char * s, int ano, int sem);
+void imprimeTudo(int n, Aluno ** v);
+void liberaAlunos(int n, Aluno ** v);
+#define N 3
+int main(void)
+{
+ Aluno ** v = (Aluno **)malloc(N * sizeof(Aluno *));
+ v = (Aluno **)malloc(N * sizeof(Aluno *));
+ if (v == NULL)
+ {
+ printf("Memoria insuficiente\n");
+ exit(1);
+ }
+ v[0] = criaAluno(110, "Ada Lovelace", 2010, 1);
+ v[1] = criaAluno(111, "Darth Vader", 2010, 2);
+ v[2] = criaAluno(112, "Janis Joplin", 2012, 1);
+ printf("Matricula, Nome, Ano e Semestre:\n");
+ imprimeTudo(N, v);
+ liberaAlunos(N, v);
+ return 0;
+}
+Aluno * criaAluno(int mat, char * s, int ano, int sem)
+{
+ Aluno * p;
+ p = (Aluno *)malloc(sizeof(Aluno));
+ if (p == NULL)
+ return NULL;
+ p->nome = (char *)malloc((strlen(s) + 1) * sizeof(char));
+ if (p->nome == NULL)
+ return NULL;
+ p->mat = mat;
+ strcpy(p->nome, s);
+ p->anoIn.ano = ano;
+ p->anoIn.semestre = sem;
+ return p;
+}
+void imprimeTudo(int n, Aluno ** v)
+{
+ int i;
+ for (i = 0; i<n; i++)
+ printf("%d %s %d %d\n", v[i]->mat, v[i]->nome, v[i]->anoIn.ano, v[i]->anoIn.semestre);
+}
+void liberaAlunos(int n, Aluno ** v)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ {
+ free(v[i]->nome);
+ free(v[i]);
+ }
+ free(v);
+ printf("Todos os alunos liberados\n");
+}
