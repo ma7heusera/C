@@ -1,0 +1,58 @@
+Exercício Ordena floats com função swap
+Repita o exercício de ordenação de temperaturas (floats) substituindo a parte do código do algoritmo de
+ordenação rápida que faz a troca do pivot, i.e.
+temp = v[a];
+v[a] = v[b];
+v[b] = temp;
+por uma chamada de função de troca chamada swap. Esta função recebe o vetor v e os índices a e b. Esta
+função será útil em outros exercícios
+
+#include <stdio.h>
+int cmpFunction(float x, float y) // funcao criterio de ordenacao
+{
+ return x > y;
+}
+void swap(float * v, int i, int j)
+{
+ float temp = v[i];
+ v[i] = v[j];
+ v[j] = temp;
+}
+void qsortFloat(int n, float * v)
+{
+ float x = v[0];
+ int a = 1, b = n - 1;
+ if (n <= 1) return;
+ do
+ {
+ while (a < n && !cmpFunction(v[a], x))
+a++;
+ while (cmpFunction(v[b], x))
+b--;
+ if (a < b)
+ {
+swap(v, a, b);
+a++;
+b--;
+ }
+ } while (a <= b);
+ v[0] = v[b];
+ v[b] = x;
+ qsortFloat(b, v);
+ qsortFloat(n - a, &v[a]);
+}
+printArray(float * v, int n)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ printf("%.1f\n", v[i]);
+ printf("\n");
+}
+int main(void)
+{
+ float v[] = { 40.0, 15.0, 10.0, 30.0, 25.0 };
+ int n = 5;
+ qsortFloat(n, v);
+ printArray(v, n);
+ return 0;
+}
