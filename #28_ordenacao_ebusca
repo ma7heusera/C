@@ -1,0 +1,185 @@
+Considere que atletas têm o histórico de medalhas em um vetor de ponteiros para a estrutura Atleta:
+typedef struct medalha Medalha;
+typedef struct atleta Atleta;
+struct medalha
+{
+int ouro;
+int prata;
+int bronze;
+};
+struct atleta
+{
+Medalha m;
+int idade;
+};
+Usando Ordenação Rápida (Quick Sort), escreva a função atletaOrdena que recebe um vetor de ponteiros
+para Atleta e o número total de atletas e ordena o vetor em ordem decrescente de medalhas (onde ouro
+vale mais do que prata e prata mais do que bronze, não importam as quantidades) e em ordem
+decrescente de idade. Use obrigatoriamente uma função de comparação e a chame de compAtleta.
+Escreva também a função atletaPrint para exibir o vetor na tela.
+Por fim, escreva a função melhorMaisJovem que:
+• recebe o vetor ordenado de atletas, o número total de atletas, um conjunto de medalhas como
+sendo uma estrutura Medalha e uma idade; e
+• usando a técnica de busca binária, imprime todos os atletas com o mesmo número de medalhas e
+que sejam mais jovens do que a idade pedida. Esta função também imprime a quantidade
+encontrada destes atletas mais jovens (e se não existirem, imprime que "não há atletas mais
+jovens"). A função deve retornar a idade do mais jovem atleta encontrado. Se nenhum atleta for
+encontrado com as medalhas e a idade pedidas, então a função retorna 0 (zero).
+Como exemplo, considerando o seguinte vetor: { { 2, 1, 3 }, 25 }, { { 4, 0, 0 }, 40 }, { { 2, 0, 5 }, 50 }, { { 2, 1, 3 }, 50 },
+ { { 3, 2, 1 }, 25 }, { { 4, 0, 0 }, 25 }, { { 2, 1, 3 }, 30 }, { { 3, 1, 3 }, 25 },
+ { { 4, 0, 0 }, 25 }, { { 2, 1, 3 }, 30 }, { { 2, 0, 5 }, 40 }
+e as seguintes variáveis:
+Medalha m1 = { 2, 1, 3 };
+int idade1 = 30;
+Medalha m2 = { 4, 0, 0 };
+int idade2 = 40;
+Medalha m3 = { 2, 0, 5 };
+int idade3 = 40;
+tem-se o output da Fig.1.
+
+#include <stdio.h>
+typedef struct medalha Medalha;
+typedef struct atleta Atleta;
+struct medalha
+{
+ int ouro;
+ int prata;
+ int bronze;
+};
+struct atleta
+{
+ Medalha m;
+ int idade;
+};
+int medalhaCmp(Medalha m1, Medalha m2)
+{
+ if (m1.ouro == m2.ouro && m1.prata == m2.prata && m1.bronze == m2.bronze)
+ return 0;
+ else if (m1.ouro > m2.ouro || m1.ouro == m2.ouro && m1.prata > m2.prata ||
+ m1.ouro == m2.ouro && m1.prata == m2.prata && m1.bronze > m2.bronze)
+ return 1;
+ else return -1;
+}
+int compAtleta(Atleta * a, Atleta * b)
+{
+ int cmpMed = medalhaCmp(a->m, b->m); // compara medalhas
+ return (cmpMed == -1 || (cmpMed == 0 && a->idade < b->idade));
+}
+int comparaAtleta(Medalha m, int idade, Atleta * a)
+{
+ int cmpMed = medalhaCmp(m, a->m); // compara medalhas
+ if (cmpMed == -1 || (cmpMed == 0 && idade < a->idade))
+ return 1;
+ else
+ if (cmpMed == 1 || (cmpMed == 0 && idade > a->idade))
+return -1;
+ else
+return 0;
+}
+int melhorMaisJovem(Atleta ** v, int n, Medalha m, int idade)
+{
+ int ini = 0;
+ int fim = n - 1;
+ int meio, cmp;
+ int count = 0;
+ while (ini <= fim)
+ {
+ meio = (ini + fim) / 2;
+ cmp = comparaAtleta(m, idade, v[meio]);
+ if (cmp<0)
+fim = meio - 1;
+ else
+if (cmp>0)
+ini = meio + 1;
+else
+{ // procura atleta com as mesmas medalhas e mais jovem
+printf("Atletas mais Jovens:\n");
+while (meio <= n - 1 && medalhaCmp(m, v[meio]->m) == 0)
+{
+ if (v[meio]->idade < idade)
+ {
+ printf(" %d %d %d %d\n", v[meio]->m.ouro, v[meio]->m.prata, v[meio]->m.bronze,
+v[meio]->idade);
+ count++;
+ }
+ meio++;
+}
+if (count == 0)
+ printf(" Nao ha' atletas mais jovens com o mesmo numero de medalhas\n");
+else
+ printf(" Total de %d atleta(s) mais jovem(ens)\n", count);
+return v[meio - 1]->idade;
+}
+ }
+ return 0;
+}
+void atletaOrdena(Atleta ** v, int n)
+{
+ Atleta * x = v[0];
+ Atleta * temp;
+ int a = 1, b = n - 1;
+ if (n <= 1) return;
+ do
+ {
+ while (a < n && !compAtleta(v[a], x))
+a++;
+ while (compAtleta(v[b], x))
+b--;
+ if (a < b)
+ {
+temp = v[a];
+v[a] = v[b];
+v[b] = temp;
+a++;
+b--;
+ }
+ } while (a <= b);
+ v[0] = v[b];
+ v[b] = x;
+ atletaOrdena(v, b);
+ atletaOrdena(&v[a], n - a);
+}
+void atletaPrint(Atleta ** v, int n)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ printf("%d %d %d %d\n", v[i]->m.ouro, v[i]->m.prata, v[i]->m.bronze, v[i]->idade);
+}
+int main(void)
+{
+ Atleta a[] =
+ {
+ { { 2, 1, 3 }, 25 },{ { 4, 0, 0 }, 40 },{ { 2, 0, 5 }, 50 },{ { 2, 1, 3 }, 50 },
+ { { 3, 2, 1 }, 25 },{ { 4, 0, 0 }, 25 },{ { 2, 1, 3 }, 30 },{ { 3, 1, 3 }, 25 },
+ { { 4, 0, 0 }, 25 },{ { 2, 1, 3 }, 30 },{ { 2, 0, 5 }, 40 }
+ };
+ int n = 11;
+ Atleta * v[11];
+ Medalha m1 = { 2, 1, 3 };
+ int idade1 = 30;
+ Medalha m2 = { 4, 0, 0 };
+ int idade2 = 40;
+ Medalha m3 = { 2, 0, 5 };
+ int idade3 = 40;
+ int menorIdade;
+ int i;
+ for (i = 0; i < n; i++) // monta vetor de ponteiros
+ v[i] = &a[i];
+ // Ordenacao:
+ printf("Vetor Original:\n");
+ atletaPrint(v, n);
+ atletaOrdena(v, n);
+ printf("Vetor Ordenado:\n");
+ atletaPrint(v, n);
+ // Busca:
+ printf("\nBusca %d-%d-%d %d:\n", m1.ouro, m1.prata, m1.bronze, idade1);
+ menorIdade = melhorMaisJovem(v, n, m1, idade1);
+ printf("menorIdade = %d\n", menorIdade);
+ printf("\nBusca %d-%d-%d %d:\n", m2.ouro, m2.prata, m2.bronze, idade2);
+ menorIdade = melhorMaisJovem(v, n, m2, idade2);
+ printf("menorIdade = %d\n", menorIdade);
+ printf("\nBusca %d-%d-%d %d:\n", m3.ouro, m3.prata, m3.bronze, idade3);
+ menorIdade = melhorMaisJovem(v, n, m3, idade3);
+ printf("menorIdade = %d\n", menorIdade);
+ return 0;
+}
