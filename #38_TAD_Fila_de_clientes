@@ -1,0 +1,215 @@
+TAD Fila de Clientes
+Primeiro defina e implemente o TAD Fila como lista, considerando o seguinte:
+ Definição de fila para tipo NÃO GENÉRICO (o que significa definir o tipo typedef struct cliente
+Cliente; e usar Cliente * info; na definição de struct elemFila)
+1
+ Definição abstrata de Fila: typedef struct fila Fila;
+Depois crie um módulo Cliente.h (que não é um TAD) contendo o seguinte:
+ Definição da estrutura cliente com o nome do cliente (com até 80 caracteres) e o valor do depósito que
+o cliente quer fazer;
+ Protótipo da função atendimentoCaixaBanco que recebe um ponteiro para Fila de clientes e um
+ponteiro para um inteiro que representa o endereço de uma variável que contabilizará o total de clientes
+atendidos, e retorna o total dos depósitos feitos pelos clientes nesta fila. Esta função também deve exibir
+o relatório de atendimento de cada cliente à medida que ele/a é atendido/a (contendo o seu lugar na fila,
+o seu nome e o valor depositado).
+Como exemplo de uso da função atendimentoCaixaBanco, temos que para uma fila com os seguintes
+clientes:
+ front rear
+{ {"Pedro", 1000}, {"Ana", 2000}, {"Alex", 3000}, {"Leo", 4000} }
+o seguinte output (com o relatório) é produzido:
+
+Fila.h
+// Fila com Tipo NAO Generico
+typedef struct cliente Cliente;
+typedef struct fila Fila;
+Fila * fila_cria(void);
+void fila_insere(Fila * f, Cliente * v);
+Cliente * fila_retira(Fila * f);
+int fila_vazia(Fila * f);
+void fila_libera(Fila * f);
+// Fila com Tipo Generico
+/*
+typedef struct cliente * tipoElemFila; // tipo e' ponteiro para struct cliente
+typedef struct fila Fila;
+Fila * fila_cria(void);
+void fila_insere(Fila * f, tipoElemFila v);
+tipoElemFila fila_retira(Fila * f);
+int fila_vazia(Fila * f);
+void fila_libera(Fila * f);
+*/
+Cliente.h
+#include "Fila.h" // fila de ponteiros para struct cliente
+typedef struct cliente Cliente;
+struct cliente
+{
+ char nome[81];
+ float deposito;
+};
+float atendimentoCaixaBanco(Fila * fBanco, int * n);
+Fila.c (Tipo NAO Genérico)
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "Fila.h"
+// Implementacao Tipo NAO Generico
+struct elemFila
+{
+ Cliente * info;
+ struct elemFila * prox;
+};
+typedef struct elemFila ElemFila;
+struct fila
+{
+ ElemFila * ini;
+ ElemFila * fim;
+};
+Fila * fila_cria(void)
+{
+ Fila * f = (Fila *)malloc(sizeof(Fila));
+ f->ini = f->fim = NULL;
+ return f;
+}
+int fila_vazia(Fila * f)
+{
+ return (f->ini == NULL);
+}
+void fila_insere(Fila * f, Cliente * v)
+{
+ ElemFila * n = (ElemFila *)malloc(sizeof(ElemFila));
+ assert(!(n == NULL)); // ou: if (n == NULL) { printf("sem memoria\n"); exit(1); }
+ n->info = v; // armazena informacao
+ n->prox = NULL; // novo no' passa a ser o ultimo
+ if (!fila_vazia(f)) // verifica se lista nao e’ vazia
+ f->fim->prox = n;
+ else // fila estava vazia
+ f->ini = n;
+ f->fim = n; // fila aponta para novo elemento
+}
+Cliente * fila_retira(Fila * f)
+{
+ ElemFila * t;
+ Cliente * v;
+ assert(!fila_vazia(f)); // ou: if (fila_vazia(f)) {printf("Fila vazia.\n"); exit(1);}
+ t = f->ini;
+ v = t->info;
+ f->ini = t->prox;
+ if (f->ini == NULL) // verifica se fila ficou vazia
+ f->fim = NULL;
+ free(t);
+ return v;
+}
+void fila_libera(Fila * f)
+{
+ ElemFila * q = f->ini;
+ ElemFila * t;
+ while (q != NULL)
+ {
+ t = q->prox;
+ free(q);
+ q = t;
+ }
+ free(f);
+}
+Fila.c (Tipo Genérico)
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "Fila.h"
+struct elemFila
+{
+ tipoElemFila info;
+ struct elemFila * prox;
+};
+typedef struct elemFila ElemFila;
+struct fila
+{
+ ElemFila * ini;
+ ElemFila * fim;
+};
+Fila * fila_cria(void)
+{
+ Fila * f = (Fila *)malloc(sizeof(Fila));
+ f->ini = f->fim = NULL;
+ return f;
+}
+int fila_vazia(Fila * f)
+{
+ return (f->ini == NULL);
+}
+void fila_insere(Fila * f, tipoElemFila v)
+{
+ ElemFila * n = (ElemFila *)malloc(sizeof(ElemFila));
+ assert(!(n == NULL)); // ou: if (n == NULL) { printf("sem memoria\n"); exit(1); }
+ n->info = v; // armazena informacao
+ n->prox = NULL; // novo no' passa a ser o ultimo
+ if (!fila_vazia(f)) // verifica se lista nao e’ vazia
+ f->fim->prox = n;
+ else // fila estava vazia
+ f->ini = n;
+ f->fim = n; // fila aponta para novo elemento
+}
+tipoElemFila fila_retira(Fila * f)
+{
+ ElemFila * t;
+ tipoElemFila v;
+ assert(!fila_vazia(f)); // ou: if (fila_vazia(f)) {printf("Fila vazia.\n"); exit(1);}
+ t = f->ini;
+ v = t->info;
+ f->ini = t->prox;
+ if (f->ini == NULL) // verifica se fila ficou vazia
+ f->fim = NULL;
+ free(t);
+ return v;
+}
+void fila_libera(Fila * f)
+{
+ ElemFila * q = f->ini;
+ ElemFila * t;
+ while (q != NULL)
+ {
+ t = q->prox;
+ free(q);
+ q = t;
+ }
+ free(f);
+}
+Cliente.c
+#include <stdio.h>
+#include "Cliente.h"
+float atendimentoCaixaBanco(Fila * fBanco, int * n)
+{
+ float total = 0.f;
+ Cliente * umCliente;
+ *n = 0; // no. de clientes atendidos
+ while (!fila_vazia(fBanco))
+ {
+ umCliente = fila_retira(fBanco);
+ total += umCliente->deposito;
+ (*n)++;
+ printf("Cliente %d (%s) atendido, deposito de R$ %7.2f\n", *n, umCliente->nome, umCliente-
+>deposito);
+ }
+ return total;
+}
+myProg.c.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "Fila.h"
+#include "Cliente.h"
+int main(void)
+{
+ Cliente clientes[] = { {"Pedro", 1000}, {"Ana", 2000}, {"Alex", 3000}, {"Leo", 4000} };
+ int n = sizeof(clientes) / sizeof(clientes[0]);
+ int i;
+ int nClientes;
+ float total;
+ Fila * fBanco;
+ fBanco = fila_cria();
+ assert(!(fBanco == NULL)); // se nao houve memoria suficiente
+ for (i = 0; i < n; i++)
+ fila_insere(fBanco, clientes+i);
+ total = atendimentoCaixaBanco(fBanco, &nClientes);
+ printf("Total de clientes: %d\nDeposito Total: R$ %7.2f\n", nClientes, total);
+ return 0;
+}
