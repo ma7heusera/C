@@ -1,0 +1,36 @@
+Escreva e teste as seguintes funções recursivas. Entregue as funções e a main em um único arquivo .c.
+1. Escreva a função mdc que calcula o máximo divisor comum (greatest common divisor) mdc(a,b) usando o algoritmo
+de Euclides (atribuído a Euclides em 300 A.C., mas que foi provavelmente descoberto por um aluno de Platão em
+375 A.C.): se a ≥ = b > 0 então mdc(a,b) = b se b divide a sem deixar resto, ou mdc(a,b) é o mdc de b e o resto da
+divisão entre a e b. Por exemplo o mdc de 32 e 40 é 8, o mdc de 27 e 9 é 9 e o mdc de 13 e 25 é 1.
+2. Escreva a função troca que recebe uma cadeia de caracteres e dois caracteres, e imprime a cadeia com o segundo
+caractere no lugar do primeiro. Por exemplo, para “abacate”, e os caracteres 'a' e '_', a função imprime “_b_c_te”.
+3. Escreva a função countNoLetter que conta o número de caracteres diferentes de letras em uma cadeia de caracteres.
+Por exemplo, a função retorna 3 para “Ah!Tem35” e 1 para “Prog2
+
+int mdc(int a, int b)
+{
+if ((a%b)==0)
+return b;
+return mdc(b,a%b);
+}
+void troca(char * s, char c, char d)
+{
+ if (*s)
+ {
+ if (*s == c)
+printf("%c",d);
+ else
+printf("%c", *s);
+ troca(s + 1, c, d);
+ }
+}
+int countNoLetter(char * s)
+{
+ if (*s == '\0')
+ return 0;
+ if ((*s >= 'A' && *s <= 'Z') || (*s >= 'a' && *s <= 'z'))
+ return countNoLetter(s + 1);
+ else
+ return 1 + countNoLetter(s + 1);
+}
