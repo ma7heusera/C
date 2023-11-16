@@ -1,0 +1,37 @@
+[1] Escreva a função somaPares que recebe um vetor de n inteiros e retorna a soma destes inteiros que são
+números pares positivos. Por exemplo, para v = {5,-3,-2,2,8,1,7,4}, somaPares retorna 14.
+[2] Escreva a função somaDigitos que recebe um número inteiro n e retorna a soma dos seus dígitos. Por
+exemplo, a soma dos dígitos de 365 é 14 e de 3651 é 15.
+Dica: divida sucessivamente o número por 10 e vá somando os restos. Por exemplo, 365/10=36 e resto 5, 36/10=3 e resto 6, 3/10=0
+e resto 3, e 5+6+3=14. Lembre que o resto é dado pelo operador %, e.g. 9%2=1.
+
+#include <stdio.h>
+int somaPares(int n, int * v)
+{
+if (n==0)
+return 0;
+if (v[0]>0 && v[0]%2==0)
+return v[0] + somaPares(n-1,v+1);
+else
+return somaPares(n-1,v+1);
+}
+int somaDigitos(int n)
+{
+if (n==0)
+return 0;
+else
+return n%10 + somaDigitos(n/10);
+}
+int main(void)
+{
+int v[]={5,-3,-2,2,8,1,7,4};
+int n;
+printf("%d\n",somaPares(8,v));
+n = 7;
+printf("%d soma digitos= %d\n",n,somaDigitos(n));
+n = 365;
+printf("%d soma digitos= %d\n",n,somaDigitos(n));
+n = 3651;
+printf("%d soma digitos= %d\n",n,somaDigitos(n));
+return 0;
+}
