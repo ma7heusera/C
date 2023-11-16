@@ -1,0 +1,259 @@
+Considere a estatística de um hospital que coleta idades e pesos de pacientes e guarda os dados em um
+vetor de ponteiros v para a seguinte estrutura:
+struct dados
+{
+char nome[51];
+int idade;
+int peso;
+};
+typedef struct dados Dados;
+[1] Ordene crescentemente por idade e peso usando Ordenação Rápida.
+[2] Escreva uma função de busca binária buscaNomePorPesoIdade que, uma vez informados uma específica
+idade e um específico peso, retorna o nome de um paciente qualquer com estas especificações de idade e
+peso.
+[3] Escreva uma função de busca binária buscaPesoMenor que retorna o endereço de uma estrutura que
+corresponde à pessoa mais magra da idade fornecida. Qualquer comparação durante a busca deve ser feita
+usando sempre a mesma função de comparação.
+Dica: uma vez encontrada uma idade (i.e. uma idade dentro de um conjunto com possivelmente outras idades iguais), faça uma
+busca sequencial dentro do vetor usando a mesma função de comparação.
+[4] Escreva uma função de busca binária buscaIndicePesoMenor que faz a mesma busca da questão
+anterior porém retornando o índice do vetor.
+Apresente a main testando todas as suas funções.
+Use os dados conforme a seguinte declaração e inicialização:
+Dados tab[] = { {"Ada",25,50},{"Ana Paula",20,30},{"Carlos",30,40},{"Eva",20,65},
+{"Obi Wan",20,40},{"Fred",18,60},{"Pat",30,45},{"Val",18,65} };
+Exemplo de output de teste
+
+#include <stdio.h>
+#include <string.h>
+struct dados
+{
+ char nome[51];
+ int idade;
+ int peso;
+};
+typedef struct dados Dados;
+void imprimeDados(Dados ** v, int n)
+{
+ int i;
+ for (i = 0; i<n; i++)
+ printf("%-10s %3d %3d\n", v[i]->nome, v[i]->idade, v[i]->peso);
+}
+int comparaDados(Dados * a, Dados * b)
+{
+ return (a->idade > b->idade || (a->idade == b->idade && a->peso > b->peso));
+}
+/*
+void ordenaDados(int n, Dados ** v) // Selection Sort
+{
+ int fim, iMax, i;
+ Dados * temp;
+ for (fim = n - 1; fim > 0; fim--)
+ {
+ iMax = 0;
+ for (i = 1; i <= fim; i++)
+if (comparaDados(v[i], v[iMax]))
+iMax = i;
+ temp = v[fim];
+ v[fim] = v[iMax];
+ v[iMax] = temp;
+ }
+}
+*/
+void ordenaDados(int n, Dados ** v) // Quick Sort
+{
+Dados * x = v[0];
+Dados * temp;
+int a = 1;
+int b = n - 1;
+if (n <= 1)
+return;
+do
+{
+while (a < n && !comparaDados(v[a], x))
+a++;
+while (comparaDados(v[b], x))
+b--;
+if (a < b)
+{
+temp = v[a];
+v[a] = v[b];
+v[b] = temp;
+a++;
+b--;
+}
+} while (a <= b);
+v[0] = v[b];
+v[b] = x;
+ordenaDados(b, v);
+ordenaDados(n - a, &v[a]);
+}
+2
+// BUSCAS
+// Busca Nome por Peso e Idade e retorna nome
+int compIdadePeso(int idade, int peso, Dados *
+b
+)
+{
+ if
+(idade <
+b
+->idade || (idade ==
+b
+->idade && peso <
+b
+->peso))
+ return
+-1;
+ else
+ if
+(idade >
+b
+->idade || (idade ==
+b
+->idade && peso >
+b
+->peso))
+return 1;
+ else
+return 0;
+}
+char * buscaNomePorPesoIdade(int
+n, Dados **
+v, int idade, int peso
+)
+{
+ int ini = 0;
+ int fim =
+n
+- 1;
+ int meio, cmp;
+ while (ini <= fim)
+
+{
+ meio = (ini + fim) / 2;
+ cmp = compIdadePeso(idade, peso,
+v[meio]);
+ if (cmp<0)
+fim = meio
+- 1;
+ else
+if (cmp>0)
+ini = meio + 1;
+else
+return
+v[meio]
+->nome;
+
+}
+ return NULL
+;
+}// Busca idade de menor peso e retorna PONTEIRO para a estrutura
+int comparaIdade(int idade, Dados *
+b
+)
+{
+ if
+(idade <
+b
+->idade)
+ return
+-1;
+ else
+ if
+(idade >
+b
+->idade)
+return 1;
+ else
+return 0;
+}
+Dados * buscaPesoMenor(int
+n, Dados **
+v, int idade
+)
+{
+ int ini = 0;
+ int fim =
+n
+- 1;
+ int meio, cmp;
+ while (ini <= fim)
+
+{
+ meio = (ini + fim) / 2;
+ cmp = comparaIdade(idade,
+v[meio]);
+ if (cmp<0)
+fim = meio
+- 1;
+ else
+if (cmp>0)
+ini = meio + 1;
+else
+{ // busca o de menor peso sequencialmente
+while (meio > 0 && comparaIdade(idade,
+v[meio
+- 1]) == 0)
+ meio--
+;
+return
+v[meio];
+}
+
+}
+ return NULL
+;
+}
+3
+// Versao busca idade de menor peso e retorna INDICE
+int buscaIndicePesoMenor(int n, Dados ** v, int idade)
+{
+ int ini = 0;
+ int fim = n - 1;
+ int meio, cmp;
+ while (ini <= fim)
+ {
+ meio = (ini + fim) / 2;
+ cmp = comparaIdade(idade, v[meio]);
+ if (cmp<0)
+fim = meio - 1;
+ else
+if (cmp>0)
+ini = meio + 1;
+else
+{ // busca o de menor peso
+while (meio > 0 && comparaIdade(idade, v[meio - 1]) == 0)
+ meio--;
+return meio;
+}
+ }
+ return -1;
+}
+int main(void)
+{
+ int n = 8, i;
+ int idade = 20, peso = 40;
+ Dados * p;
+ char * nome;
+ Dados tab[] = { { "Ada", 25, 50 },{ "Ana Paula", 20, 30 },{ "Carlos", 30, 40 },{ "Eva", 20, 65 },
+ { "Obi Wan", 20, 40 },{ "Fred", 18, 60 },{ "Pat", 30, 45 },{ "Val", 18, 65 } };
+ Dados * v[] = { tab, tab + 1, tab + 2, tab + 3, tab + 4, tab + 5, tab + 6, tab + 7 };
+ printf("Dados Originais:\n");
+ imprimeDados(v, n);
+ printf("Dados ORDENADOS:\n");
+ ordenaDados(n, v);
+ imprimeDados(v, n);
+ nome = buscaNomePorPesoIdade(n, v, idade, peso);
+if (nome != NULL)
+ printf("Para idade %d e peso %d nome: %s\n", idade, peso, nome);
+ p = buscaPesoMenor(n, v, idade);
+ if (p != NULL)
+ printf("Busca idade %d com menor peso por ENDERECO: %-10s %d %d\n", idade, p->nome, p->idade, p-
+>peso);
+ i = buscaIndicePesoMenor(n, v, idade);
+ if (i >= 0)
+ printf("Busca idade %d com menor peso por INDICE: %-10s %d %d\n", idade, v[i]->nome, v[i]-
+>idade, v[i]->peso);
+ return 0;
+}
