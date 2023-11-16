@@ -1,0 +1,356 @@
+Trabalho TAD fração
+[1] Neste trabalho você deve definir um tipo abstrato de dados (TAD) chamado Fracao que representa
+números racionais (i.e. aqueles definidos por dois números inteiros). Defina o tipo fração como tendo 2
+componentes (numerador e denominador) e onde o sinal fica determinado conjuntamente pelos valores
+dos dois componentes1
+. Além das funções essenciais do tipo constructors & destructors e accessors &
+mutators, defina as seguintes funções gerais: fraEhSinalNeg (que verifica se o sinal é negativo), fraReduz
+(que reduz a fração aos menores inteiros), e fraMult (que multiplica duas frações). Teste este TAD para
+multiplicar frações, por exemplo:
+− 24
+468
+×
+6
+4
+×
+1
+3 = − 1
+39
+Defina a função MostraFracao obrigatoriamente fora do TAD (i.e. no módulo da função main) para exibir
+frações (e.g. − 1
+39 é impressa como -1/39 e − 5
+1 é impressa como -5). Defina também a função
+analisaNumerador fora do TAD (no módulo da main) que imprime mensagens do tipo “Numerador de xxx
+e’ yyy e e’ par” ou “Numerador de xxx e’ yyy e NAO e’ par”. Por fim defina a função fraEhMaior fora do TAD
+(no módulo da main) que testa se a fração p é maior do que a fração q.
+2
+[2] Crie um módulo (que NÃO é um TAD) listaDeFracoes.c e sua interface listaDeFracoes.h para lidar com
+uma lista de ponteiros para Fracao. Além das funções indispensáveis, defina a função lst_mult que
+multiplica todas as frações da lista3
+. No programa principal (que é o mesmo da questão anterior), use
+algumas das frações utilizadas na questão [1] para montar a lista. Ao final de todos os testes (da questão [1]
+e da questão [2]), libere todas as memórias (das frações e da lista).
+O output contemplando as questões [1] e [2] está exemplificado na figura abaixo.
+Observe as seguintes condições:
+1. Use um prefixo sugestivo (e.g. fraAcessaNum).
+2. Defina typedef struct fracao * Fracao; para ser mais
+direto e poder escrever Fracao f1;
+3. Note que o resultado da multiplicação acima mencionada
+envolveu uma redução da fração para chegar aos menores
+números inteiros (use uma função auxiliar e static para calcular
+o máximo divisor comum - mdc)
+4
+. Cuidado também quando for
+fazer a função que reduz uma fração usando o mdc, para que
+sejam considerados casos em que o numerador é menor do que
+o denominador (ou vice versa) e o caso que o numerador é 0
+(zero).
+4. Procure agrupar as funções em constructors & destructors
+(tipo cria e libera) e accessors & mutators (tipo get e set, ou acessa e atribui). Use o guardião #pragma
+once como a primeira linha em todos os módulos .h.
+
+1 e.g. se fornecermos -6 e -4 para o operador que cria a fração, teremos a representação de 6
+4 , apesar de estarem
+guardados os valores -6 e -4 na estrutura. 2 Dica: obtenha o sinal (usando fraEhSinalNeg) e faça a conta: sinal*numerador/denominador. 3 Dica: crie uma fração 1/1 para ir acumulando a multiplicação. 4 Faça uma função recursiva mdc(a,b) que implementa o algoritmo de Euclides (atribuído a Euclides em 300 A.C., mas
+que foi provavelmente descoberto por um aluno de Platão em 375 A.C.): se a ≥ = b >0 então mdc(a, b)= b se b divide a
+sem deixar resto, ou mdc(a, b) é o mdc de b e o resto da divisão entre a e b. O operador resto em C é o %.
+
+Gabarito TAD Fracao – como * Fracao
+Este gabarito também apresenta uma opção 2, na qual o sinal é explicitamente definido na struct fracao.
+fracao.h
+#pragma once
+typedef struct fracao * Fracao;
+// Constructors & Destructors
+Fracao fraCria(int n, int d); // cria/inicia nova fracao (retorna NULL se falta memoria
+void fraLibera(Fracao f); // libera fracao
+ // Accessors & Mutators (get & set)
+int fraAcessaNum(Fracao f); // acessa numerador
+int fraAcessaDen(Fracao f); // acessa denominador
+// Funcoes e Operacoes
+int fraEhSinalNeg(Fracao f); // verifica se sinal e' negativo
+void fraReduz(Fracao f); // reduz fracao aos menores inteiros
+Fracao fraMult(Fracao f1, Fracao f2); // multiplica duas fracoes
+listaDeFracoes.h
+#pragma once
+#include "fracao.h"
+void MostraFracao(Fracao f);
+struct elemento
+{
+Fracao * info;
+struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Elemento * lst_insere(Elemento * lst, Fracao r);
+void lst_print(Elemento * lst);
+Fracao lst_mult(Elemento * lst);
+void lst_libera(Elemento * lst);
+fracao.c
+#include <stdio.h>
+#include <stdlib.h>
+#include "Fracao.h"
+/*
+struct fracao // opcao 2: com sinal
+{
+int numerador;
+int denominador;
+int sinal;
+};
+*/
+struct fracao // sinal dado por numerador*denominador
+{
+int numerador;
+int denominador;
+};
+/********* Constructors & Destructors *********/
+/*
+Fracao fraCria(int n, int d) // cria nova fracao - opcao 2
+{
+Fracao f;
+f = (Fracao)malloc(sizeof(struct fracao));
+if (f==NULL)
+return NULL;
+if (n*d < 0)
+f->sinal = 1; // 1 indica NEG
+else
+f->sinal = 0; // 0 indica POS
+f->numerador = abs(n);
+f->denominador = abs(d);
+return f;
+}
+*/
+Fracao fraCria(int n, int d) // cria nova fracao
+{
+Fracao f;
+f = (Fracao)malloc(sizeof(struct fracao));
+if (f == NULL)
+return NULL;
+f->numerador = n;
+f->denominador = d;
+return f;
+}
+void fraLibera(Fracao f) // libera fracao
+{
+free(f);
+}
+/********* Accessors & Mutators (get & set) (Acessa & Atribui) *********/
+/*
+int fraAcessaNum(Fracao f) // opcao 2
+{
+return f->numerador;
+}
+int fraAcessaDen(Fracao f) // opcao 2
+{
+return f->denominador;
+}
+int fraAcessaSinal(Fracao f) // opcao 2
+{
+return f->sinal;
+}
+*/
+int fraAcessaNum(Fracao f)
+{
+return abs(f->numerador);
+}
+int fraAcessaDen(Fracao f)
+{
+return abs(f->denominador);
+}
+/********* Funcoes e Operacoes *********/
+/*
+int fraEhSinalNeg(Fracao f) // verifica se sinal e' negativo - opcao 2
+{
+return f->sinal!=0;
+}
+*/
+int fraEhSinalNeg(Fracao f)
+{
+return (f->numerador*f->denominador < 0);
+}
+/* mdc(a,b): maximo divisor comum
+se a>=b>0 entao mdc(a,b) =b se b div a sem resto; =mdc(b,resto a/b)
+*/
+static int mdc(int a, int b) // maximo divisor comum
+{
+if ((a%b) == 0)
+return b;
+return mdc(b, a%b);
+}
+void fraReduz(Fracao f) // reduz fracao aos menores numeros possiveis
+{
+int divisor, temp, a = f->numerador, b = f->denominador;
+if (a == 0)
+divisor = f->denominador;
+else
+{
+if (a<b)
+{
+temp = a;
+a = b;
+b = temp;
+}
+divisor = mdc(a, b);
+}
+f->numerador = f->numerador / divisor;
+f->denominador = f->denominador / divisor;
+};
+Fracao fraMult(Fracao f1, Fracao f2) // multiplica duas fracoes
+{
+Fracao prod;
+int sign1 = fraEhSinalNeg(f1) ? -1 : 1; // obtem sinal para fins de aritmetica
+int sign2 = fraEhSinalNeg(f2) ? -1 : 1;
+int n, d;
+n = sign1*(fraAcessaNum(f1))*sign2*(fraAcessaNum(f2));
+d = fraAcessaDen(f1)*fraAcessaDen(f2);
+prod = fraCria(n, d);
+fraReduz(prod);
+return prod;
+}
+listaDeFracoes.c
+#include <stdlib.h>
+#include <stdio.h>
+#include "listaDefracoes.h"
+Elemento * lst_insere(Elemento * lst, Fracao r)
+{
+Elemento * p = (Elemento *)malloc(sizeof(Elemento));
+p->info = r;
+p->prox = lst;
+return p;
+}
+void lst_print(Elemento * lst)
+{
+Elemento * p = lst;
+while (p != NULL)
+{
+MostraFracao(*(p->info));
+printf("\n");
+p = p->prox;
+}
+}
+void lst_libera(Elemento * lst)
+{
+Elemento * p = lst, *t;
+while (p != NULL)
+{
+t = p->prox;
+fraLibera(*(p->info));
+free(p);
+p = t;
+}
+}
+myProg.c
+#include <stdio.h>
+#include "Fracao.h"
+#include "listaDeFracoes.h"
+void MostraFracao(Fracao f)
+{
+int n = fraAcessaNum(f), d = fraAcessaDen(f);
+if (fraEhSinalNeg(f))
+printf("-");
+if (d == 1)
+printf("%d", n);
+else
+printf("%d/%d", n, d);
+}
+void analisaNumerador(Fracao f)
+{
+printf("Numerador de ");
+MostraFracao(f);
+printf(" e' %d e", fraAcessaNum(f));
+if (fraAcessaNum(f) % 2 == 0)
+printf(" é par\n");
+else
+printf(" NAO e' par\n");
+}
+int fraEhMaior(Fracao p, Fracao q)
+{
+float signp = fraEhSinalNeg(p) ? -1 : 1; // obtem sinal para fins de aritmetica
+float signq = fraEhSinalNeg(q) ? -1 : 1; // float e' para a divisao ser float
+return (signp*fraAcessaNum(p) / fraAcessaDen(p)) > (signq*fraAcessaNum(q) / fraAcessaDen(q));
+}
+Fracao lst_mult(Elemento * lst)
+{
+Fracao f = fraCria(1, 1);
+while (lst != NULL)
+{
+f = fraMult(f, *lst->info);
+lst = lst->prox;
+}
+return f;
+}
+int main(void)
+{
+Fracao f1 = fraCria(24, -468);
+Fracao f2 = fraCria(-6, -4);
+Fracao f3 = fraCria(0, -2);
+Fracao f4 = fraCria(1, 3);
+Fracao f5, f6;
+Fracao f7 = fraCria(6, 9);
+Fracao f8 = fraCria(2, 4);
+Fracao f9 = fraCria(6, -9);
+Fracao fList;
+int nord;
+Elemento * lst = NULL;
+printf("f1= ");
+MostraFracao(f1);
+printf("\n");
+fraReduz(f1);
+printf("f1 reduzida= ");
+MostraFracao(f1);
+printf("\n");
+printf("f2= ");
+MostraFracao(f2);
+printf("\n");
+printf("f3= ");
+MostraFracao(f3);
+printf("\n");
+printf("f4= ");
+MostraFracao(f4);
+printf("\n");
+f5 = fraMult(f4, fraMult(f1, f2));
+printf("f5=f4*f1*f2= ");
+MostraFracao(f5);
+printf("\n");
+f6 = fraMult(f5, f3);
+printf("f6=f5*f3= ");
+MostraFracao(f6);
+printf("\n");
+if (fraEhSinalNeg(f5))
+{
+MostraFracao(f5);
+printf(" e' negativo\n");
+}
+analisaNumerador(f5);
+printf("f7= ");
+MostraFracao(f7);
+printf("\n");
+printf("f8= ");
+MostraFracao(f8);
+printf("\n");
+printf("f9= ");
+MostraFracao(f9);
+printf("\n");
+printf("f7 > f8?: %d\n", fraEhMaior(f7, f8)); // retorna 1, i.e. f7 > f8
+printf("f9 > f8?: %d\n", fraEhMaior(f9, f8)); // retorna 0, i.e. f9 < f8
+printf("\nLISTA DE FRACOES:\n");
+lst = lst_insere(lst, f4);
+lst = lst_insere(lst, f2);
+lst = lst_insere(lst, f1);
+nord = fraAcessaNum(*lst->info); // numerador da cabeca da lista
+printf("Numerador da cabeca da lista: %d\n", nord);
+printf("Lista:\n");
+lst_print(lst);
+printf("\nMultiplicacao de fracoes na lista:\n");
+fList = lst_mult(lst);
+MostraFracao(fList);
+printf("\n");
+fraLibera(f3);
+fraLibera(f5);
+fraLibera(f6);
+fraLibera(f7);
+fraLibera(f8);
+fraLibera(f9);
+// Libera memoria da lista e das fracoes f1, f2 e f4
+lst_libera(lst);
+printf("Memoria liberada com sucesso\n");
+return 0;
+}
