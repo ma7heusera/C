@@ -1,0 +1,119 @@
+Refaça a T24 (vetor de ponteiros para Aluno) com as seguintes alterações para ler dados de um arquivo (ao invés
+de usar as variáveis a0, a1, ... ):
+• Mude a função criaAluno para Aluno * criaAluno(float p1, float p2, char * nome) que agora
+recebe duas notas e um nome.
+• Escreva uma nova função int countLines(FILE * f) que recebe um arquivo texto e conta quantas linhas
+de dados existem neste arquivo. Dica: fique lendo os caracteres do arquivo e contando quantos newlines ('\n') existem,
+enquanto o caractere EOF não é lido. Use a função int getc(FILE * f) da biblioteca para ler o próximo caractere.
+• Na função main, abra o arquivo, conte o número de linhas com countLines, feche o arquivo, use a
+informação para alocar memória, abra o arquivo novamente e vá lendo as notas e o nome de cada aluno e
+ao mesmo tempo montando o vetor de ponteiros para Aluno. Lembre de fechar novamente o arquivo.
+Escreva o arquivo de dados como sendo alunos.txt e contendo:
+1.0 8.0 AnaMaria
+6.0 7.0 Carlos
+3.0 4.0 Fred
+5.0 5.0 Beatrice
+10.0 10.0 AdaLovelace
+(note que não há espaços em branco nos nomes dos alunos).
+O output deve ser o mesmo da tarefa T24 (exceto que os nomes não tem espaços em branco). Os cuidados com a
+memória devem ser os mesmos.
+typedef struct notas Notas;
+struct notas
+{
+float p1;
+float p2;
+};
+typedef struct aluno Aluno;
+struct aluno
+{
+char * nome;
+Notas graus;
+};
+/* NOVA criaAluno */
+Aluno * criaAluno(float p1, float p2, char * nome)
+{
+Aluno * pa;
+pa = (Aluno *)malloc(sizeof(Aluno));
+if (pa == NULL) exit(1);
+pa->nome = (char *)malloc(strlen(nome) + 1);
+if (pa->nome == NULL) exit(1);
+strcpy(pa->nome, nome);
+pa->graus.p1 = p1;
+pa->graus.p2 = p2;
+return pa;
+}
+float mediaAprovados(Aluno ** v, int n, int * nap)
+{
+int i;
+float m;
+float a = 0.0f;
+*nap = 0;
+for (i = 0; i < n; i++)
+{
+m = (v[i]->graus.p1 + v[i]->graus.p2) / 2;
+if (m >= 5.0f)
+{
+a += m;
+(*nap)++;
+}
+}
+return (*nap == 0) ? 0 : a / (*nap);
+}
+void imprime(Aluno ** v, int n)
+{
+int i;
+for (i = 0; i < n; i++)
+printf("%15s %6.2f %6.2f\n", v[i]->nome, v[i]->graus.p1, v[i]->graus.p2);
+}
+void libera(Aluno ** v, int n)
+{
+int i;
+if (v == NULL || n == 0) return;
+for (i = 0; i < n; i++)
+{
+free(v[i]->nome);
+free(v[i]);
+}
+free(v);
+}
+/* NOVA countLines */
+int countLines(FILE * f)
+{
+int count = 0;
+char c;
+for (c = getc(f); c != EOF; c = getc(f))
+if (c == '\n')
+count++;
+return count;
+}
+int main(void)
+{
+Aluno ** v;
+float media;
+int nap;
+int n, i;
+FILE * fin;
+float p1, p2;
+char s[81];
+fin = fopen("alunos.txt", "r");
+if (fin == NULL) exit(1);
+n = countLines(fin);
+fclose(fin);
+v = (Aluno **)malloc(n * sizeof(Aluno *));
+if (v == NULL) exit(1);
+fin = fopen("alunos.txt", "r");
+if (fin == NULL) exit(1);
+for (i = 0; i < n; i++)
+{
+fscanf(fin, "%f %f %[^\n]s", &p1, &p2, s); // se nome nao tem brancos, nao precisa [^\n]
+v[i] = criaAluno(p1, p2, s);
+}
+fclose(fin);
+printf("Turma:\n");
+imprime(v, n);
+media = mediaAprovados(v, n, &nap);
+printf("%d aprovados. Media turma: %6.2f\n", nap, media);
+libera(v, n);
+printf("Memoria liberada ...\n");
+return 0;
+}
