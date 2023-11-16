@@ -1,0 +1,84 @@
+Exercicio remove todas as ocorrências de um dado número
+Escreva uma função Elemento * lst_retiraOcorrencias(Elemento * lst, int a) que remove todas as
+ocorrências de a de uma lista simplesmente encadeada de números inteiros, onde o elemento de lista é definido
+como:
+struct elemento
+{
+ int info;
+ struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Por exemplo, a lista 5 – 5 – 2 – 3 – 5 – 2 – 5 – 5 – 7 – NULL se torna a seguinte lista: 2 – 3 – 2 – 7 – NULL.
+Escreva o programa completo e defina as seguintes funções para criar e imprimir listas:
+Elemento * lst_insere(Elemento * lst, int a)
+void lst_imprime(Elemento * lst)
+O output deve ser igual ao da figura ao lado.
+Dicas: evite percorrer mais de uma vez a lista. Começe removendo as ocorrências do início da lista (se houver), pois
+neste caso a cabeça da lista muda. Depois remova as outras ocorrências. Note que são dois loops, mas não é um
+dentro do outro.
+
+#include <stdio.h>
+#include <stdlib.h>
+struct elemento
+{
+ int info;
+ struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Elemento * lst_insere(Elemento * lst, int a)
+{
+ Elemento * novo = (Elemento *)malloc(sizeof(Elemento));
+ if (novo != NULL)
+ {
+ novo->info = a;
+ novo->prox = lst;
+ }
+ return novo;
+}
+void lst_imprime(Elemento * lst)
+{
+ Elemento * p;
+ for (p = lst; p != NULL; p = p->prox)
+ printf("%d ", p->info);
+ printf("\n");
+}
+Elemento * lst_retiraOcorrencias(Elemento * lst, int a) // retira todas ocorrencias de um dado valor
+{
+ Elemento * p = lst;
+ Elemento * ant, * temp;
+ while (p != NULL && p->info == a) // retira os iniciais, se houver
+ {
+ lst = p->prox;
+ free(p);
+ p = lst;
+ }
+ ant = p;
+ while (p != NULL) // retira os outros
+ {
+ if (p->info != a) // nao achou, entao anda
+ {
+ant = p;
+p = p->prox;
+ }
+ else
+{
+ant->prox = p->prox; // faz a ponte
+temp = p;
+p = p->prox; // anda p1
+free(temp); // libera
+}
+ }
+ return lst;
+}
+int main(void)
+{
+ Elemento * lst = NULL;
+ int dados[] = { 5, 5, 2, 3, 5, 2, 5, 5, 7 };
+ int n = 9, i;
+ for (i = n-1; i >= 0; i--)
+ lst = lst_insere(lst, dados[i]);
+ lst_imprime(lst);
+ lst = lst_retiraOcorrencias(lst,5);
+ lst_imprime(lst);
+ return 0;
+}
