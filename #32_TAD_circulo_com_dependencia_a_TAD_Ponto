@@ -1,0 +1,220 @@
+TAD Circulo com dependência a TAD Ponto
+Escreva o TAD Ponto com o seguinte tipo:
+typedef struct ponto Ponto;
+e com as seguintes funções:
+// Constructors & Destructors
+Ponto * ptoCria(float x, float y); // Cria ponto (x,y). Retorna NULL se nao ha' memoria
+void ptoLibera(Ponto * p); // Libera a memoria de um ponto previamente criado
+// Accessors & Mutators (get & set)
+void ptoAcessa(Ponto * p, float * x, float * y); // Retorna coordenadas do ponto p
+void ptoAtribui(Ponto * p, float x, float y); // Atribui novos valores às coordenadas de um ponto
+// Functions & Operators
+float ptoDist(Ponto * p1, Ponto * p2); // Retorna a distância entre dois pontos
+Depois escreva o TAD Circulo, dependente do TAD Ponto, com o tipo
+typedef struct circulo Circulo;
+e com as funções
+Circulo * circCria(float x, float y, float r); // Cria circulo com centro (x,y) e raio r
+void circLibera(Circulo * c); // Libera a memória de um círculo previamente criado
+float circGetRaio(Circulo * c); // acessa raio
+Ponto * circGetCentro(Circulo * c); // acessa centro
+float circArea(Circulo * c); // Retorna o valor da área do círculo
+int circInterior(Circulo * c, Ponto * p); // Verifica se um dado ponto p está dentro do círculo
+Depois escreva um programa que use estes TADs e:
+• define um círculo c1 de centro (3.0,2.0) e raio = 1.0 e um círculo c2 de centro (4.4141, 3.4142) e raio = 1.0
+• calcula e imprime a área de c1
+• define e usa a função circTang que recebe dois círculos e testa se eles são tangentes.
+
+ponto.h
+/* TAD: Ponto 2D */
+typedef struct ponto Ponto; // tipo exportado
+// Constructors & Destructors
+Ponto * ptoCria(float x, float y); // Cria ponto (x,y). Retorna NULL se nao ha' memoria
+void ptoLibera(Ponto * p); // Libera a memoria de um ponto previamente criado
+// Accessors & Mutators (get & set)
+void ptoAcessa(Ponto * p, float * x, float * y); // Retorna coordenadas do ponto p
+void ptoAtribui(Ponto * p, float x, float y); // Atribui novos valores às coordenadas de um ponto
+// Functions & Operators
+float ptoDist(Ponto * p1, Ponto * p2); // Retorna a distância entre dois pontos
+circulo.h
+/* TAD: Circulo */
+/* Dependência de módulos */
+#include "ponto.h"
+/* Tipo exportado */
+typedef struct circulo Circulo;
+// Constructors & Destructors
+Circulo * circCria(float x, float y, float r); // Cria circulo com centro (x,y) e raio r
+void circLibera(Circulo * c); // Libera a memória de um círculo previamente criado
+// Accessors & Mutators (get & set)
+float circGetRaio(Circulo * c); // acessa raio
+Ponto * circGetCentro(Circulo * c); // acessa centro
+// Functions & OPerators
+float circArea(Circulo * c); // Retorna o valor da área do círculo
+int circInterior(Circulo * c, Ponto * p); // Verifica se um dado ponto p está dentro do círculo
+ponto.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "ponto.h"
+struct ponto
+{
+ float x;
+ float y;
+};
+Ponto * ptoCria(float x, float y)
+{
+ Ponto* p = (Ponto *)malloc
+ (sizeof(Ponto));
+ if (p == NULL)
+ return NULL;
+ p->x = x;
+ p->y = y;
+ return p;
+}
+void ptoLibera(Ponto * p)
+{
+ free(p);
+}
+void ptoAcessa(Ponto * p, float * x, float * y)
+{
+ *x = p->x;
+ *y = p->y;
+}
+2
+void ptoAtribui(Ponto*
+p, float
+x, float
+y
+)
+{
+
+p
+->x =
+x
+;
+
+p
+->y =
+y
+;
+}
+float ptoDist(Ponto * p1, Ponto * p2
+)
+{
+ float dx = p2
+->x
+- p1
+->x;
+ float dy = p2
+->y
+- p1
+->y;
+ return sqrt(dx*dx + dy*dy); }circulo.c
+#include <stdlib.h>
+#include "circulo.h"
+#define PI 3.14159
+struct circulo {
+ Ponto * p;
+ float r;
+};
+Circulo * circCria(float
+x, float
+y, float
+r
+)
+{
+ Circulo * c = (Circulo *)malloc(sizeof
+(Circulo));
+ if (c != NULL
+)
+
+{
+
+c
+->p = ptoCria(
+x,
+y);
+ if (c
+->p == NULL
+)
+return NULL
+;
+
+c
+->r =
+r
+;
+
+}
+ return c; }
+void circLibera(Circulo *
+c
+)
+{
+ ptoLibera(
+c
+->p);
+ free(
+c);
+}
+float circGetRaio(Circulo *
+c
+)
+{
+ return
+c
+->r;
+}
+Ponto * circGetCentro(Circulo *
+c
+)
+{
+ return
+c
+->p;
+}
+float circArea(Circulo *
+c)
+{
+ return PI
+*
+c
+->r*
+c
+->r;
+}
+int circInterior(Circulo *
+c, Ponto *
+p
+)
+{
+ float d = ptoDist(
+c
+->p,
+p);
+ return (d <
+c
+->r);
+}p
+r
+o
+g
+1.c
+#include <stdio.h>
+#include <math.h>
+#include "ponto.h"
+#include "circulo.h"
+3
+int circTang(Circulo * c1, Circulo * c2)
+{
+ float dp = ptoDist(circGetCentro(c1), circGetCentro(c2));
+ float dc = circGetRaio(c1) + circGetRaio(c2);
+ return (float)fabs(dp - dc) < 0.0001;
+}
+int main(void)
+{
+ Circulo * c1 = circCria(3.0, 2.0, 1.0);
+ Circulo * c2 = circCria(3.0 + 1.4142, 2.0 + 1.4142, 1.0);
+ printf("Area: %f\n", circArea(c1));
+ printf("c1 c2 tangentes: %d\n", circTang(c1, c2));
+ return 0;
+}
