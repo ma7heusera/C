@@ -1,0 +1,45 @@
+Exercício Quick Sort com escolha de Critério de Ordenação
+Refaça o exercício de ordenação de temperaturas (floats) onde o critério (crescente ou decrescente) é um
+dos parâmetros da função qsortFloat:
+void qsortFloat(int n, float * v, int crit)
+Considere crit = 1 para crescente e crit = -1 para decrescente. O usuário deve dar este valor através do
+teclado.
+Considere também o uso da função swap na qsortFloat (como no exercício anterior).
+Dica: você deve alterar a função auxiliar de comparação.
+
+int cmpFunction(float x, float y, int crit) // funcao criterio de ordenacao
+{
+ if (crit == 1)
+ return x > y;
+ if (crit == -1)
+ return x < y;
+}
+void swap(float * v, int i, int j)
+{
+ float temp = v[i];
+ v[i] = v[j];
+ v[j] = temp;
+}
+void qsortFloat(int n, float * v, int crit) // pivot = first
+{
+ float x = v[0];
+ int a = 1, b = n - 1;
+ if (n <= 1) return;
+ do
+ {
+ while (a < n && !cmpFunction(v[a], x, crit))
+a++;
+ while (cmpFunction(v[b], x, crit))
+b--;
+ if (a < b)
+ {
+swap(v, a, b);
+a++;
+b--;
+ }
+ } while (a <= b);
+ v[0] = v[b];
+ v[b] = x;
+ qsortFloat(b, v, crit);
+ qsortFloat(n - a, &v[a], crit);
+}
