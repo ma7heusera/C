@@ -1,0 +1,58 @@
+//Escreva a função fat que calcula o fatorial de um número dado. Teste sua função com uma main que fica
+//solicitando um número ao usuário e calculando o seu fatorial, até que o usuário entre -1.
+
+#include <stdio.h>
+int fat(int n)
+{
+ int f = 1;
+ while (n > 1)
+ f *= n--; // ou {f=f*n; n--;}
+ return f;
+}
+int main(void)
+{
+ int n = 0;
+ while (n >= 0)
+ {
+ printf("Entre inteiro (-1 para terminar): ");
+ scanf("%d", &n);
+ if (n >= 0)
+printf("fat(%d) = %d\n", n, fat(n));
+ }
+ return 0;
+}
+
+//Solução análoga abaixo está fora do escopo da disciplina INF1007:
+#include <stdio.h>
+unsigned long long fat(int n)
+{
+ unsigned long long f = 1UL; // se fosse long long, i.e. signed, 1LL
+ while (n > 1)
+ f *= n--; // ou {f=f*n; n--;}
+ return f;
+}
+int main(void)
+{
+ int n = 0;
+ while (n >= 0)
+ {
+ printf("Entre inteiro (-1 para terminar): ");
+ scanf("%d", &n);
+ if (n >= 0)
+printf("fat(%d) = %lld\n", n, fat(n)); // %lld para signed e unsigned
+ }
+ return 0;
+}
+/*
+Neste caso, qual é o maior número com fatorial correto? Resp: 20
+20! = 2,432,902,008,176,640,000
+21! = 51,090,942,171,709,440,000
+Você poderia usar long long (i.e. signed):
+bits signed unsigned
+short int 16 -32,768 a +32,767 0 a 65,535
+int ou long 32 -2,147,483,648 a +2,147,483,647 0 a 4,294,967,295
+long long 64 -9,223,372,036,854,775,808
+a
++9,223,372,036,854,775,807
+0 a +18,446,744,073,709,551,615
+*/
