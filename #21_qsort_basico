@@ -1,0 +1,29 @@
+static int cmpFunction(Tipo x1, Tipo x2) // funcao criterio de ordenacao
+{
+   // Criterio que retorna verdadeiro ou falso
+}
+
+void qsortTipo(int n, Tipo * v) // Ex: Tipo= int, Tipo= float, Tipo= Aluno *
+{
+   Tipo x = v[0];
+   Tipo temp;
+   int a = 1, b = n-1;
+   if (n<=1) return;
+   do
+   {  while (a < n && !cmpFunction(v[a],x))
+         a++;
+      while (cmpFunction(v[b],x))
+         b--;
+      if (a < b)
+      {  temp = v[a];
+         v[a] = v[b];
+         v[b] = temp;
+         a++;
+         b--;
+      }
+   } while (a <= b);
+   v[0] = v[b];
+   v[b] = x;
+   qsortTipo(b,v);
+   qsortTipo(n-a,&v[a]);
+}
