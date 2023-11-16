@@ -1,0 +1,260 @@
+Lista de TAD Circulo
+Utilize os TADs Ponto e Circulo da tarefa anterior e acrescente um módulo listaDeCirculos.c e sua interface
+listaDeCirculos.h que NÃO é um TAD e que define uma lista de ponteiros para Circulos. As funções neste módulo são
+lst_insere (que insere um novo elemento na lista), lst_print (que imprime as coordenadas do centro e o raio de cada
+círculo na lista), lst_libera (que libera a memória de toda a lista) e lst_somaArea (que soma as áreas de todos os
+círculos da lista). Escreva um programa que cria 3 círculos de raios 1.0, 2.0 e 3.0 , imprime a lista e calcula a soma das
+áreas de todos os círculos na lista. O output é como o da figura abaixo.
+
+ponto.h
+/* TAD: Ponto 2D */
+typedef struct ponto Ponto; // tipo exportado
+// Constructors & Destructors
+Ponto * ptoCria(float x, float y); // Cria ponto (x,y). Retorna NULL se nao ha' memoria
+void ptoLibera(Ponto * p); // Libera a memoria de um ponto previamente criado
+// Accessors & Mutators (get & set)
+void ptoAcessa(Ponto * p, float * x, float * y); // Retorna coordenadas do ponto p
+void ptoAtribui(Ponto * p, float x, float y); // Atribui novos valores às coordenadas de um ponto
+// Functions & Operators
+float ptoDist(Ponto * p1, Ponto * p2); // Retorna a distância entre dois pontos
+circulo.h
+/* TAD: Circulo */
+/* Dependência de módulos */
+#include "ponto.h"
+/* Tipo exportado */
+typedef struct circulo Circulo;
+// Constructors & Destructors
+Circulo * circCria(float x, float y, float r); // Cria circulo com centro (x,y) e raio r
+void circLibera(Circulo * c); // Libera a memória de um círculo previamente criado
+// Accessors & Mutators (get & set)
+float circGetRaio(Circulo * c); // acessa raio
+Ponto * circGetCentro(Circulo * c); // acessa centro
+// Functions & OPerators
+float circArea(Circulo * c); // Retorna o valor da área do círculo
+int circInterior(Circulo * c, Ponto * p); // Verifica se um dado ponto p está dentro do círculo
+ponto.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include "ponto.h"
+struct ponto
+{
+ float x;
+ float y;
+};
+Ponto * ptoCria(float x, float y)
+{
+ Ponto* p = (Ponto *)malloc
+ (sizeof(Ponto));
+ if (p == NULL)
+ return NULL;
+ p->x = x;
+ p->y = y;
+ return p;
+}
+void ptoLibera(Ponto * p)
+{
+ free(p);
+}
+void ptoAcessa(Ponto * p, float * x, float * y)
+{
+ *x = p->x;
+ *y = p->y;
+}
+2
+void ptoAtribui(Ponto*
+p, float
+x, float
+y
+)
+{
+
+p
+->x =
+x
+;
+
+p
+->y =
+y
+;
+}
+float ptoDist(Ponto * p1, Ponto * p2
+)
+{
+ float dx = p2
+->x
+- p1
+->x;
+ float dy = p2
+->y
+- p1
+->y;
+ return sqrt(dx*dx + dy*dy); }
+circulo.c
+#include <stdlib.h>
+#include "circulo.h"
+#define PI 3.14159
+struct circulo {
+ Ponto * p;
+ float r;
+};
+Circulo * circCria(float
+x, float
+y, float
+r
+)
+{
+ Circulo * c = (Circulo *)malloc(sizeof
+(Circulo));
+ if (c != NULL
+)
+
+{
+
+c
+->p = ptoCria(
+x,
+y);
+ if (c
+->p == NULL
+)
+return NULL
+;
+
+c
+->r =
+r
+;
+
+}
+ return c; }
+void circLibera(Circulo *
+c
+)
+{
+ ptoLibera(
+c
+->p);
+ free(
+c);
+}
+float circGetRaio(Circulo *
+c
+)
+{
+ return
+c
+->r;
+}
+Ponto * circGetCentro(Circulo *
+c
+)
+{
+ return
+c
+->p;
+}
+float circArea(Circulo *
+c)
+{
+ return PI
+*
+c
+->r*
+c
+->r;
+}
+int circInterior(Circulo *
+c, Ponto *
+p
+)
+{
+ float d = ptoDist(
+c
+->p,
+p);
+ return (d <
+c
+->r);
+}
+listaDeCirculos.h
+#include "circulo.h"
+struct elemento {
+3
+ Circulo * info;
+ struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Elemento * lst_insere(Elemento * lst, Circulo * c);
+void lst_print(Elemento * lst);
+float lst_somaArea(Elemento * lst);
+void lst_libera(Elemento * lst);
+listaDeCirculos.c
+#include <stdlib.h>
+#include <stdio.h>
+#include "listaDeCirculos.h"
+#include "circulo.h"
+#include "ponto.h"
+Elemento * lst_insere(Elemento * lst, Circulo * c)
+{
+ Elemento * p = (Elemento *)malloc(sizeof(Elemento));
+ p->info = c;
+ p->prox = lst;
+ return p;
+}
+void lst_print(Elemento * lst)
+{
+ float x, y, raio;
+ Ponto * centro;
+ Elemento * p = lst;
+ while (p != NULL)
+ {
+ centro = circGetCentro(p->info);
+ ptoAcessa(centro, &x, &y);
+ raio = circGetRaio(p->info);
+ printf("centro: (%.3f, %.3f) raio: %.3f\n", x, y, raio);
+ p = p->prox;
+ }
+}
+void lst_libera(Elemento * lst)
+{
+ Elemento * p = lst, *t;
+ while (p != NULL)
+ {
+ t = p->prox;
+ circLibera(p->info);
+ free(p);
+ p = t;
+ }
+}
+float lst_somaArea(Elemento * lst)
+{
+ Elemento * p = lst;
+ float a = 0.0;
+ while (p != NULL)
+ {
+ a += circArea(p->info);
+ p = p->prox;
+ }
+ return a;
+}
+4
+prog1.c
+#include <stdio.h>
+#include "circulo.h"
+#include "listaDeCirculos.h"
+int main(void)
+{
+ Circulo * c1 = circCria(0, 0, 1);
+ Circulo * c2 = circCria(1, 1, 2);
+ Circulo * c3 = circCria(2, 2, 3);
+ Elemento * lst = NULL;
+ lst = lst_insere(lst, c3);
+ lst = lst_insere(lst, c2);
+ lst = lst_insere(lst, c1);
+ printf("Lista de Circulos:\n");
+ lst_print(lst);
+ printf("\nArea Total: %.3f\n", lst_somaArea(lst));
+ return 0;
+}
