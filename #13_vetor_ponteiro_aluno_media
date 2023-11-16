@@ -1,0 +1,106 @@
+Defina um tipo estruturado Aluno que contém o nome do aluno (como ponteiro e não como array name) e as
+duas notas deste aluno na forma de um outro tipo chamado Notas. Considere um vetor de ponteiros para Aluno,
+com memória alocada dinamicamente, e escreva a função mediaAprovados que calcula o número de alunos
+aprovados e a média destes alunos (com o critério de média ≥ 5.0 para a aprovação).
+Para testar a função, você deve partir obrigatoriamente das seguintes variáveis:
+Aluno a0 = { "Ana Maria",{1.0, 8.0} };
+Aluno a1 = { "Carlos",{6.0, 7.0} };
+Aluno a2 = { "Fred", {3.0,4.0} };
+Aluno a3 = { "Beatrice",{5.0, 5.0} };
+Aluno a4 = { "Ada Lovelace",{10.0, 10.0} };
+Para o teste, você também deve (obrigatoriamente) escrever a funcao criaAluno que recebe uma estrutura Aluno
+(como nas variável acima mencionadas) e retorna um ponteiro para Aluno cuja memória foi alocada
+dinamicamente. No caso de falha de alocação, faça um exit() de imediato. Outra função obrigatoria para o teste é
+uma função que imprima o vetor.
+Por fim, libere toda a memória alocada, com uma função libera.
+A figura abaixo ilustra o output:
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct notas Notas;
+struct notas
+{
+float p1;
+float p2;
+};
+typedef struct aluno Aluno;
+struct aluno
+{
+char * nome;
+Notas graus;
+};
+Aluno * criaAluno(Aluno a)
+{
+char * s;
+Aluno * pa;
+pa = (Aluno *)malloc(sizeof(Aluno));
+if (pa == NULL) exit(1);
+s = (char *)malloc(strlen(a.nome) + 1);
+if (s == NULL) exit(1);
+pa->nome = s;
+strcpy(s, a.nome);
+pa->graus.p1 = a.graus.p1;
+pa->graus.p2 = a.graus.p2;
+return pa;
+}
+float mediaAprovados(Aluno ** v, int n, int * nap)
+{
+int i;
+float m;
+float a = 0.0f;
+*nap = 0;
+for (i = 0; i < n; i++)
+{
+m= (v[i]->graus.p1 + v[i]->graus.p2) / 2;
+if (m >= 5.0f)
+{
+a += m;
+(*nap)++;
+}
+}
+return (*nap == 0) ? 0 : a / (*nap);
+}
+void imprime(Aluno ** v, int n)
+{
+int i;
+for (i = 0; i < n; i++)
+printf("%15s %6.2f %6.2f\n", v[i]->nome, v[i]->graus.p1, v[i]->graus.p2);
+}
+void libera(Aluno ** v, int n)
+{
+int i;
+if (v == NULL || n == 0) return;
+for (i = 0; i < n; i++)
+{
+free(v[i]->nome);
+free(v[i]);
+}
+free(v);
+}
+int main(void)
+{
+Aluno a0 = { "Ana Maria",{1.0, 8.0} };
+Aluno a1 = { "Carlos",{6.0, 7.0} };
+Aluno a2 = { "Fred", {3.0,4.0} };
+Aluno a3 = { "Beatrice",{5.0, 5.0} };
+Aluno a4 = { "Ada Lovelace",{10.0, 10.0} };
+int n = 5;
+Aluno ** v;
+float media;
+int nap;
+v = (Aluno **)malloc(n * sizeof(Aluno *));
+if (v == NULL) exit(1);
+v[0] = criaAluno(a0);
+v[1] = criaAluno(a1);
+v[2] = criaAluno(a2);
+v[3] = criaAluno(a3);
+v[4] = criaAluno(a4);
+printf("Turma:\n");
+imprime(v, n);
+media = mediaAprovados(v, n, &nap);
+printf("%d aprovados. Media turma: %6.2f\n", nap, media);
+libera(v, n);
+printf("Memoria liberada ...\n");
+return 0;
+}
