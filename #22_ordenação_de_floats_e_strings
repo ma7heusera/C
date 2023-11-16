@@ -1,0 +1,72 @@
+Ordenação Rápida de floats
+Considere vetores de floats representando temperaturas. Por exemplo:
+float vTemp[] = { 40.0, 15.0, 25.0, 30.0, 10.0 };
+Escreva e teste uma função que ordena crescentemente vetores de temperaturas, usando o algoritmo de
+ordenação rápida (quick sort) e usando uma função auxiliar de comparação. Escreva também uma função
+auxiliar para imprimir o vetor.
+Indique no seu código, como comentário, o que alterar para ordenar em ordem decrescente
+
+Considere vetores de floats representando nomes de pessoas. Por exemplo:
+char * vs[] = { "daniel", "leo", "eva", "bia", "ana", "leia" };
+Escreva e teste uma função que ordena crescentemente vetores de nomes, usando o algoritmo de
+ordenação rápida (quick sort) e usando uma função auxiliar de comparação. Escreva também uma função
+auxiliar para imprimir o vetor.
+Indique no seu código, como comentário, o que alterar para ordenar em ordem decrescente.
+A saída do seu programa deve ser como o da figura abaixo.
+ana
+bia
+daniel
+eva
+leia
+leo
+
+#include <stdio.h>
+#include <string.h>
+int cmpFunction(char * s1, char * s2) // funcao criterio de ordenacao
+{
+ return (strcmp(s1, s2) > 0); // crescente
+// return (strcmp(s1, s2) < 0); // decrescente
+}
+void qsortStr(int n, char ** v)
+{
+ char * x = v[0];
+ char * temp;
+ int a = 1, b = n - 1;
+ if (n <= 1) return;
+ do
+ {
+ while (a < n && !cmpFunction(v[a], x))
+a++;
+ while (cmpFunction(v[b], x))
+b--;
+ if (a < b)
+ {
+temp = v[a];
+v[a] = v[b];
+v[b] = temp;
+a++;
+b--;
+ }
+ } while (a <= b);
+ v[0] = v[b];
+ v[b] = x;
+ qsortStr(b, v);
+ qsortStr(n - a, &v[a]);
+}
+printArray(char ** v, int n)
+{
+ int i;
+ for (i = 0; i < n; i++)
+ printf("%s\n", v[i]);
+}
+int main(void)
+{
+ char * vs[] = { "daniel", "leo", "eva", "bia", "ana", "leia" };
+ int n = 6;
+ printf("Vetor original:\n");
+ printArray(vs, n);
+ qsortStr(n, vs);
+ printf("Vetor Ordenado:\n");
+ printArray(vs, n);
+ return 0;
+}
