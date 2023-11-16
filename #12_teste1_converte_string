@@ -1,4 +1,4 @@
-Escreva e teste a função
+qEscreva e teste a função
 char * strDigit(char * s)
 que recebe uma cadeia de caracteres s e retorna uma nova cadeia do tamanho exato contendo a conversão
 de s de maneira que qualquer dígito (0, 1, …, 9) é substituído por um asterisco (*), sem destruir o conteúdo
