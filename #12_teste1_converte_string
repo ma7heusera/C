@@ -1,0 +1,32 @@
+Escreva e teste a função
+char * strDigit(char * s)
+que recebe uma cadeia de caracteres s e retorna uma nova cadeia do tamanho exato contendo a conversão
+de s de maneira que qualquer dígito (0, 1, …, 9) é substituído por um asterisco (*), sem destruir o conteúdo
+original de s. Por exemplo, para “a@1Bc2019F” a função retorna “a@*Bc****F”. Você pode usar a biblioteca
+de strings.
+A função deve retornar NULL se não houver memória disponível. No teste, libere a memória da nova cadeia
+de caracteres após o uso
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+char * strDigit(char * s) // retorna nova string com * no lugar de digitos
+{
+char * p, *r;
+p = (char *)malloc(strlen(s) + 1); // +1 for '\0'
+r = p; // para guardar o p inicial
+if (p != NULL)
+for (; *p = *s; s++, p++) // se fizer for (;*s;s++,p++), faca *p='\0' antes do return
+if (*p >= '0' && *p <= '9')
+*p = '*';
+return r;
+}
+int main(void)
+{
+char s[] = "a@1Bc2019F";
+char * w;
+w = strDigit(s);
+printf("%s\n%s\n", s, w);
+free(w);
+return 0;
+}
