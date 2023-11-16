@@ -1,0 +1,179 @@
+Exercício Lista de Retângulos
+Um jogo de tabuleiro tem uma trilha composta por retângulos:
+Considere que a trilha é implementada como uma lista encadeada contendo ponteiros para uma estrutura
+do tipo indicado na figura abaixo:
+retangulo
+onde b é a largura e h é a altura tipo float.
+Faça um programa que:
+• monta uma trilha de jogo de tabuleiro usando a função lstRet_insere que tem o seguinte protótipo:
+ElemRet * lstRet_insere(ElemRet * n, float b, float h);
+• imprime a lista com void lstRet_imprime(ElemRet * n);
+• calcula a área total desta trilha com float lstRet_areaTotal(ElemRet * p);
+• libera toda a memória alocada com void lstRet_libera(ElemRet * n).
+Implemente a função lstRet_areaTotal que calcula a área total nas versões iterativa e recursiva.
+Comente uma das duas soluções com /* ... */, mas teste as duas antes de entregar.
+Um exemplo de saída do programa é:
+
+#include <stdio.h>
+#include <stdlib.h>
+struct retangulo
+{
+ float b;
+ float h;
+};
+typedef struct retangulo Retangulo;
+struct elemRet
+{
+ Retangulo * info;
+ struct elemRet * prox;
+};
+typedef struct elemRet ElemRet;
+ElemRet * lstRet_insere(ElemRet * n, float b, float h)
+{
+ ElemRet * p = (ElemRet *)malloc(sizeof(ElemRet));
+ Retangulo * r = (Retangulo *)malloc(sizeof(Retangulo));
+ if (p == NULL || r == NULL)
+ return NULL;
+ r->b = b;
+ r->h = h;
+ p->info = r;
+ p->prox = n;
+ return p;
+}
+void lstRet_libera(ElemRet * n)
+{
+ if (n != NULL)
+ {
+ lstRet_libera(n->prox);
+ free(n);
+ }
+}
+void lstRet_imprime(ElemRet * n)
+{
+ if (n != NULL)
+ {
+ printf("%6.2f %6.2f\n", n->info->b, n->info->h);
+ lstRet_imprime(n->prox);
+ }
+}
+// Solucao iterativa
+/*
+float lstRet_areaTotal(ElemRet * p)
+{
+ElemRet * n;
+float s = 0;
+for (n = p; n!=NULL; n = n->prox)
+s += n->info->b * n->info->h;
+return s;
+}
+*/
+// Solucao recursiva
+float lstRet_areaTotal(ElemRet * p)
+{
+ if (p == NULL)
+ return 0;
+ else
+ return (p->info->b * p->info->h) + lstRet_areaTotal(p->prox);
+}
+int main(void)
+{
+ ElemRet * lista = NULL;
+ lista = lstRet_insere(lista, 2.5, 2);
+ lista = lstRet_insere(lista, 10, 2);
+ lista = lstRet_insere(lista, 15, 2);
+ printf("Lista de Retangulos:\n");
+ lstRet_imprime(lista);
+ printf("Area Total= %6.2f\n", lstRet_areaTotal(lista));
+ lstRet_libera(lista);
+ printf("Lista Liberada com Sucesso!\n");
+ return 0;
+}
+
+
+Lista de Retângulos Struct direto
+Um jogo de tabuleiro tem uma trilha composta por retângulos:
+Considere que a trilha é implementada como uma lista encadeada cujos elementos são:
+struct elemRet
+{
+ float b; // largura
+ float h; // altura
+ struct elemRet * prox;
+};
+typedef struct elemRet ElemRet;
+Faça um programa que:
+• monta uma trilha de jogo de tabuleiro usando a função lstRet_insere
+• imprime a lista com a função lstRet_imprime
+• calcula a área total desta trilha com a função RECURSIVA lstRet_areaTotal
+• calcula a área do último retângulo com a função RECURSIVA lst_AreaUltimo
+• libera toda a memória alocada com a função RECURSIVA lstRet_libera.
+Um exemplo de saída do programa é:
+
+#include <stdio.h>
+#include <stdlib.h>
+struct elemRet
+{
+ float b; // largura
+ float h; // altura
+ struct elemRet * prox;
+};
+typedef struct elemRet ElemRet;
+ElemRet * lstRet_insere(ElemRet * n, float b, float h)
+{
+ ElemRet * p = (ElemRet *)malloc(sizeof(ElemRet));
+ if (p == NULL)
+ return NULL;
+ p->b = b;
+ p->h = h;
+ p->prox = n;
+ return p;
+}
+void lstRet_libera(ElemRet * n)
+{
+ if (n != NULL)
+ {
+ lstRet_libera(n->prox);
+ free(n);
+ }
+}
+void lstRet_imprime(ElemRet * n) // recursiva
+{
+ if (n != NULL)
+ {
+ printf("%6.2f %6.2f\n", n->b, n->h);
+ lstRet_imprime(n->prox);
+ }
+}
+float lstRet_areaTotal(ElemRet * p) // recursiva
+{
+ if (p == NULL)
+ return 0;
+ else
+ return (p->b * p->h) + lstRet_areaTotal(p->prox);
+}
+float lst_AreaUltimo(ElemRet * lst)
+{
+ if (lst == NULL)
+ return 0.0f;
+ if (lst->prox == NULL)
+ return lst->b * lst->h;
+ return lst_AreaUltimo(lst->prox);
+}
+int main(void)
+{
+ ElemRet * lista = NULL;
+ lista = lstRet_insere(lista, 2.5, 2);
+ lista = lstRet_insere(lista, 10, 2);
+ lista = lstRet_insere(lista, 15, 2);
+ printf("Lista de Retangulos:\n");
+ lstRet_imprime(lista);
+ printf("Area Total= %6.2f\n", lstRet_areaTotal(lista));
+ printf("Area do ultimo = %6.2f\n", lst_AreaUltimo(lista));
+ lstRet_libera(lista);
+ printf("Lista Liberada com Sucesso!\n");
+ return 0;
+}
+
+
+
+
+
