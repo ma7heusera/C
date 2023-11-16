@@ -1,0 +1,80 @@
+Exercicio retira duplicados de uma lista desordenada
+Escreva uma função Elemento * lst_retiraDup(Elemento * lst) que retira elementos repetidos de uma lista
+simplesmente encadeada de números inteiros, onde o elemento de lista é definido como:
+struct elemento
+{
+ int info;
+ struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Por exemplo, a lista 2 – 7 – 5 – 2 – 3 – 4 – 2 – 2 – 5 – 5 – NULL se torna a seguinte lista: 2 – 7 – 5 – 3 – 4 – NULL.
+Escreva o programa completo e defina as seguintes funções para criar e imprimir listas:
+Elemento * lst_insere(Elemento * lst, int a)
+void lst_imprime(Elemento * lst)
+O output deve ser igual ao da figura ao lado
+
+#include <stdio.h>
+#include <stdlib.h>
+struct elemento
+{
+ int info;
+ struct elemento * prox;
+};
+typedef struct elemento Elemento;
+Elemento * lst_insere(Elemento * lst, int a)
+{
+ Elemento * novo = (Elemento *)malloc(sizeof(Elemento));
+ if (novo != NULL)
+ {
+ novo->info = a;
+ novo->prox = lst;
+ }
+ return novo;
+}
+void lst_imprime(Elemento * lst)
+{
+ Elemento * p;
+ for (p = lst; p != NULL; p = p->prox)
+ printf("%d ", p->info);
+ printf("\n");
+}
+Elemento * lst_retiraDup(Elemento * lst)
+{
+ Elemento * p1 = lst;
+ Elemento * ant, * temp;
+ Elemento * p2;
+ while (p1 != NULL)
+ {
+ ant = p1;
+ p2 = p1->prox;
+ while (p2 != NULL)
+ {
+if (p2->info != p1->info) // nao achou, entao anda
+{
+ant = p2;
+p2 = p2->prox;
+}
+else
+{
+ant->prox = p2->prox; // faz a ponte
+temp = p2;
+p2 = p2->prox; // anda p2
+free(temp); // libera
+}
+ }
+ p1 = p1->prox; // repete para o proximo
+ }
+ return lst;
+}
+int main(void)
+{
+ Elemento * lst = NULL;
+ int dados[] = { 5, 5, 2, 2, 4, 3, 2, 5, 7, 2 };
+ int i;
+ for (i = 0; i < 10; i++)
+ lst = lst_insere(lst, dados[i]);
+ lst_imprime(lst);
+ lst = lst_retiraDup(lst);
+ lst_imprime(lst);
+ return 0;
+}
