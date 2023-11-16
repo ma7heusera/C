@@ -1,0 +1,95 @@
+Converte decimal em binário (usando Pilha)
+Escreva e teste a função void dec2bin(int n, char * t) que converte o número natural n (decimal) em um
+número binário armazenado como uma string de zeros e uns, usando a interface e as funções de Pilha. Por
+exemplo, 29 é a string “11101”. Considere que o ponteiro t aponta para uma área com memória suficiente.
+As figuras abaixo ilustram o método e a saída. 
+
+pilha.h
+typedef struct pilha Pilha;
+/* funcoes Pilha */
+Pilha * pilha_cria(void);
+void pilha_libera(Pilha * p);
+void pilha_push(Pilha * p, int a);
+int pilha_pop(Pilha * p);
+int pilha_vazia(Pilha * p);
+pilha.c
+#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include "pilha.h"
+struct elemento
+{
+int info;
+struct elemento * prox;
+};
+typedef struct elemento Elemento;
+struct pilha
+{
+Elemento * topo;
+};
+Pilha * pilha_cria(void)
+{
+Pilha * p = (Pilha *) malloc(sizeof(Pilha));
+p->topo = NULL;
+return p;
+}
+int pilha_vazia(Pilha * p)
+{
+return (p->topo == NULL);
+}
+void pilha_push(Pilha * p, int a)
+{
+Elemento * novo = (Elemento *)malloc(sizeof(Elemento));
+assert(novo != NULL);
+novo->info = a;
+novo->prox = p->topo;
+p->topo = novo;
+}
+int pilha_pop(Pilha * p)
+{
+Elemento * t;
+int a;
+assert(!pilha_vazia(p));
+t = p->topo;
+a = t->info;
+p->topo = t->prox;
+free(t);
+return a;
+}
+void pilha_libera(Pilha * p)
+{
+Elemento *t, * q = p->topo;
+while (q != NULL)
+{
+t = q->prox;
+free(q);
+q = t;
+}
+free(p);
+}
+myProg.c
+#include <stdio.h>
+#include <stdlib.h>
+#include "pilha.h"
+void dec2bin(int n, char * t);
+int main(void)
+{
+char bin[10];
+int n= 29;
+dec2bin(n,bin);
+printf("%d(dec) -> %s(binario)\n",n,bin);
+return 0;
+}
+void dec2bin(int n, char * t)
+{
+Pilha * p = pilha_cria();
+do
+{
+pilha_push(p,n%2);
+n /= 2;
+} while (n);
+while (!pilha_vazia(p))
+*t++ = '0'+ pilha_pop(p);
+*t = '\0';
+pilha_libera(p);
+}
